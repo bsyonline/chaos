@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+</head>
+<body>
+<div id="receiveMsg" style="width: 100%;height: 300px;border: 1px solid #b1adad; float: left; -webkit-overflow-scrolling: touch; overflow: scroll">
+</div>
+<div style="padding-top: 10px;display:flex;width: 80%;justify-content:center;">
+
+    <input id="cmd" type="text">
+    <input type="button" value="submit" onclick="prog.chat()"/>
+</div>
+<br>
+
+<script type="application/javascript">
+    window.prog = {
+        socket: null,
+        init: function () {
+            if (window.WebSocket) {
+                prog.socket = new WebSocket("ws://localhost:8080/ws","abc123");
+                prog.socket.onopen = function () {
+                    console.log("连接建立成功...");
+                },
+                    prog.socket.onclose = function () {
+                        console.log("连接关闭...");
+                    },
+                    prog.socket.onerror = function () {
+                        console.log("发生错误...");
+                    },
+                    prog.socket.onmessage = function (e) {
+                        console.log("接收到消息" + e.data);
+                        var innerText = document.getElementById("receiveMsg").innerText;
+                        console.log("receiveMsg="+ innerText)
+                        var receiveMsg = document.getElementById("receiveMsg");
+                        receiveMsg.append(e.data);
+                        receiveMsg.append(document.createElement("br"));
+                    }
+
+            } else {
+                alert("浏览器不支持websocket协议...");
+            }
+        },
+        chat: function (msg) {
+            line = document.getElementById('cmd').value;
+            prog.socket.send(line);
+        }
+    };
+
+    prog.init();
+</script>
+</body>
+</html>

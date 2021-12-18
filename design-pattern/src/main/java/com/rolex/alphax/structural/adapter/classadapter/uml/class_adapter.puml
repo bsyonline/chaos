@@ -1,0 +1,47 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+class UserService {
+    + UserService(userInfo : IUserInfo)
+    - userInfo : IUserInfo
+    ~ getUserInfo() : void
+}
+
+interface IOuterUserInfo {
+    + basicInfo() : Map
+    + technicalInfo() : Map
+}
+
+interface IUserInfo {
+    + getName() : String
+    + getAge() : String
+    + getTechnical() : String
+}
+
+class OuterUserInfo {
+    + basicInfo() : Map
+    + technicalInfo() : Map
+}
+
+class UserInfo {
+    + getName() : String
+    + getAge() : String
+    + getTechnical() : String
+}
+
+class OuterUserAdapter {
+    + getName() : String
+    + getAge() : String
+    + getTechnical() : String
+}
+
+OuterUserAdapter ..|> IUserInfo
+OuterUserAdapter --|> OuterUserInfo
+UserInfo ..|> IUserInfo
+OuterUserInfo ..|> IOuterUserInfo
+UserService --> "-userInfo" IUserInfo
+
+@enduml

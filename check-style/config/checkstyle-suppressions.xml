@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.0//EN"
+        "https://checkstyle.org/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+    <suppress checks="InnerAssignment" files="Test.java"/>
+    <suppress checks="ClassDataAbstractionCoupling" files="Test.java"/>
+    <suppress checks="AbbreviationAsWordInName" files="Test.java"/>
+    <suppress checks="JavadocVariable" files="^.*[\\/]src[\\/]main[\\/]java[\\/]com[\\/]rolex[\\/]alphax.*$"/>
+    <suppress checks="[a-zA-Z0-9]*" files="com.rolex.*.*"/>
+</suppressions>

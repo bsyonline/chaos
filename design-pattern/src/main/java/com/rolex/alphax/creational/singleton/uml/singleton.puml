@@ -1,0 +1,16 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+class Singleton1 {
+    - INSTANCE {static} : Singleton1
+    - Singleton1()
+    + getInstance() : Singleton1
+}
+
+App ..> Singleton1
+Singleton1 --> Singleton1
+
+@enduml

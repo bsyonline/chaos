@@ -1,0 +1,31 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface WeatherObserver {
+    + update(args : String) : void
+}
+
+class CMA {
+    + update(args : String) : void
+}
+
+class NWS {
+    + update(args : String) : void
+}
+
+class Weather {
+    - observers : List
+    + addObserver(observer : WeatherObserver) : void
+    + removeObserver(observer : WeatherObserver) : void
+    + temperatureChange() : void
+    + humidityChanges() : void
+}
+
+CMA ..|> WeatherObserver
+NWS ..|> WeatherObserver
+Weather o-- WeatherObserver
+
+@enduml

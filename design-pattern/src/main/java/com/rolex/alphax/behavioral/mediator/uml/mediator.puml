@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Mediator
+class ConcreteMediator
+class Customer
+class CustomerA
+class CustomerB
+class CustomerC
+class CustomerD
+
+CustomerA --|> Customer
+CustomerB --|> Customer
+CustomerC --|> Customer
+CustomerD --|> Customer
+ConcreteMediator --|> Mediator
+CustomerA --o ConcreteMediator
+CustomerB --o ConcreteMediator
+CustomerC --o ConcreteMediator
+CustomerD --o ConcreteMediator
+CustomerA --> Mediator
+CustomerB --> Mediator
+CustomerC --> Mediator
+CustomerD --> Mediator
+
+@enduml

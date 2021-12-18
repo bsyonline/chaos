@@ -1,0 +1,32 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface RateStrategy {
+    + fee(price : double) : double
+}
+
+class BlackCardStrategy {
+    + fee(price : double) : double
+}
+
+class GoldCardStrategy {
+    + fee(price : double) : double
+}
+
+class SilverCardStrategy {
+    + fee(price : double) : double
+}
+
+class StrategyFactory {
+    - strategies : Map
+    + getStrategy(type : String) : RateStrategy
+}
+
+BlackCardStrategy ..|> RateStrategy
+GoldCardStrategy ..|> RateStrategy
+SilverCardStrategy ..|> RateStrategy
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface Image {
+    + display() : void
+}
+
+interface Advice {
+    + before() : void
+    + after() : void
+}
+
+class PNGImage {
+    - imageFilePath : String
+    + display() : void
+}
+
+class ImageProxy {
+    - target : Image
+    + getProxyInstance() : Object
+}
+
+ImageProxy +.. InvocationHandler
+MyInvocationHandler ..|> InvocationHandler
+ImageProxy o-- Image
+ImageProxy ..|> Advice
+PNGImage ..|> Image
+
+@enduml

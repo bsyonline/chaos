@@ -1,0 +1,76 @@
+@startuml
+
+class App {
+    + main (args : String[]) {static} : void
+}
+
+class Hero {
+    - armor : Armor
+    - mount : Mount
+    - profession : Profession
+    - weapon : Weapon
+    + Hero(builder : Builder)
+    + toString() : String
+}
+
+class Builder {
+    - armor : Armor
+    - mount : Mount
+    - profession : Profession
+    - weapon : Weapon
+    + armor() : Builder
+    + mount() : Builder
+    + profession() : Builder
+    + weapon() : Builder
+    + build() : Hero
+}
+
+class Armor {
+    - name : String
+    - level : int
+    - profession : Profession
+    - category : Category
+}
+
+enum Category {
+    + Plate {static}
+    + Mail {static}
+    + Leather {static}
+    + Cloth {static}
+    - point : int
+}
+
+class Mount {
+    - name : String
+    - level : int
+    - profession : Profession[]
+}
+
+enum Profession {
+    + Warrior {static}
+    + Mage {static}
+    + Paladin {static}
+    + Hunter {static}
+    - point : int
+}
+
+class Weapon {
+    - name : String
+    - level : int
+    - profession : Profession[]
+}
+
+Builder --+ Hero
+Armor --o Builder
+Mount --o Builder
+Profession --o Builder
+Weapon --o Builder
+Armor --o Hero
+Mount --o Hero
+Profession --o Hero
+Weapon --o Hero
+App ..> Hero
+
+Category --+ Armor
+
+@enduml

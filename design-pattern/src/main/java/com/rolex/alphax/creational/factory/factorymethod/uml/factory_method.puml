@@ -1,0 +1,40 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+class Car
+class Benz {
+    + toString() : String
+}
+class Bmw {
+    + toString() : String
+}
+
+interface CarFactory {
+    + create() : Car
+}
+
+class BenzFactory {
+    + create() : Car
+}
+
+class BmwFactory {
+    + create() : Car
+}
+
+class Factory {
+    - carFactory : CarFactory
+    + Factory(carFactory : CarFactory)
+    + create() : Car
+}
+
+Benz --|> Car
+Bmw --|> Car
+BenzFactory ..|> CarFactory
+BmwFactory ..|> CarFactory
+Factory o-- CarFactory
+App ..> Factory
+
+@enduml

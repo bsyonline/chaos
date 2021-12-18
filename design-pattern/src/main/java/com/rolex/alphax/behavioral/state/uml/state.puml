@@ -1,0 +1,39 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface IMarioState {
+    + getState() : String
+    + getMushroom() : void
+    + meetMonster() : void
+}
+
+class SmallState {
+    + getState() : String
+    + getMushroom() : void
+    + meetMonster() : void
+}
+
+class SuperState {
+    - mario : Mario
+    + getState() : String
+    + getMushroom() : void
+    + meetMonster() : void
+}
+
+class Mario {
+    - currentState : IMarioState
+    + getState() : String
+    + getMushroom() : void
+    + meetMonster() : void
+}
+
+SmallState ..|> IMarioState
+SuperState ..|> IMarioState
+SmallState o-- Mario
+SuperState o-- Mario
+Mario o-- IMarioState
+
+@enduml

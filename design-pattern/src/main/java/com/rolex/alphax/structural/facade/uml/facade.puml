@@ -1,0 +1,32 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface Government {
+    + approve() : void
+}
+
+class IndustryAndCommerceBureau {
+    + approve() : void
+}
+
+class TaxBureau {
+    + approve() : void
+}
+
+class UrbanManagementAndLawEnforcement {
+    + approve() : void
+}
+
+class GovernmentFacade {
+    + approve() : void
+}
+
+IndustryAndCommerceBureau ..|> Government
+TaxBureau ..|> Government
+UrbanManagementAndLawEnforcement ..|> Government
+GovernmentFacade o-- Government
+
+@enduml

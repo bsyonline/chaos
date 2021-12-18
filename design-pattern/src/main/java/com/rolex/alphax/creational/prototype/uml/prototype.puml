@@ -1,0 +1,24 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface Car
+
+class LandRover {
+    - features : ArrayList<String>
+    + clone() : Object
+}
+
+class LandWind {
+    - landRover : LandRover
+    + create() : Car
+}
+
+LandRover ..|> Car
+LandWind ..|> Car
+LandRover --o LandWind
+App ..> LandRover
+
+@enduml

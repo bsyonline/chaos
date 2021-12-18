@@ -1,0 +1,35 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface Student {
+    + exam() : void
+}
+
+class PrimarySchoolStudent {
+    - student : Student
+    + PrimarySchoolStudent(student : Student)
+    + exam() : void
+}
+
+class MiddleSchoolStudent {
+    - student : Student
+    + MiddleSchoolStudent(student : Student)
+    + exam() : void
+}
+
+class CollageStudent {
+    - student : Student
+    + CollageStudent(student : Student)
+    + exam() : void
+}
+
+PrimarySchoolStudent ..|> Student
+MiddleSchoolStudent ..|> Student
+CollageStudent ..|> Student
+MiddleSchoolStudent o-- PrimarySchoolStudent
+CollageStudent o-- MiddleSchoolStudent
+
+@enduml

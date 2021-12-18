@@ -1,0 +1,37 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+class Bag {
+    - grid : Grid
+    + pushPotion() : void
+    + show() : void
+}
+
+class Grid {
+    - x : int
+    - y : int
+    - potion : Potion
+    + toString() : String
+}
+
+interface Potion {
+    + remark() : String
+}
+
+class HealthPotion {
+    + remark() : String
+}
+
+class ManaPotion {
+    + remark() : String
+}
+
+HealthPotion ..|> Potion
+ManaPotion ..|> Potion
+Grid o-- Potion
+Bag o-- Grid
+
+@enduml

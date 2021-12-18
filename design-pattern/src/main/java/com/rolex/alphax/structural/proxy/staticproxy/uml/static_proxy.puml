@@ -1,0 +1,31 @@
+@startuml
+
+interface Image {
+    + display() : void
+}
+
+interface Advice {
+    + before() : void
+    + after() : void
+}
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+class JPEGImage {
+    - imageFilePath : String
+    + display() : void
+}
+
+class ImageProxy {
+    - target : JPEGImage
+    + display() : void
+}
+
+JPEGImage ..|> Image
+ImageProxy ..|> Image
+ImageProxy o-- Image
+ImageProxy ..|> Advice
+
+@enduml

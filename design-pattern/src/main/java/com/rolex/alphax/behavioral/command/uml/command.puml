@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+interface Command
+class Client
+class NoodleTakeOrderCommand
+class RiceTakeOrderCommand
+class Waiter
+class Cook
+
+Waiter --> Command
+Client ..> NoodleTakeOrderCommand
+Client ..> RiceTakeOrderCommand
+NoodleTakeOrderCommand --|> Command
+RiceTakeOrderCommand --|> Command
+Client --> Cook
+Client --> Waiter
+
+@enduml

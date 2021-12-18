@@ -1,0 +1,44 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface Collection {
+    + add(car : Car) : void
+}
+
+interface Iterator {
+    + hasNext() : boolean
+    + next() : Car
+}
+
+interface Iterable {
+    + iterator() : Iterator
+}
+
+class Car {
+    - id : String
+    - type : String
+}
+
+class Park {
+    - modCount : int
+    - cars : Car[]
+    + add(car : Car) : void
+    + iterator() : Iterator
+}
+
+class ParkIterator {
+    - expectedModCount : int
+    + next() : Car
+    + hasNext() : boolean
+    + checkForComodification() : void
+}
+
+Park ..|> Iterable
+Park ..|> Collection
+Park +.. ParkIterator
+ParkIterator ..|> Iterator
+
+@enduml

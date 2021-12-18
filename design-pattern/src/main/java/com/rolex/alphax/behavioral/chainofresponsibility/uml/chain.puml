@@ -1,0 +1,30 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+class Handler {
+    - next : Handler
+    + handle() : void
+}
+
+class HttpBodyHandler {
+    + handle() : void
+}
+
+class HttpHeaderHandler {
+    + handle() : void
+}
+
+class HandlerChain {
+    - handlers : List
+    + addHandler(next : Handler) : void
+    + handle() : void
+}
+
+HttpHeaderHandler --|> Handler
+HttpBodyHandler --|> Handler
+
+
+@enduml

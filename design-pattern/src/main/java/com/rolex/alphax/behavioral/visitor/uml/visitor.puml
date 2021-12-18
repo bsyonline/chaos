@@ -1,0 +1,61 @@
+@startuml
+
+class App {
+    + main(args : String[]) {static} : void
+}
+
+interface ResourceFile {
+    + accept(visitor : visitor) {abstract} : void
+}
+
+class PDFFile {
+    + PdfFile(filePath : String)
+    + accept(visitor : visitor) : void
+}
+
+class PPTFile {
+    + PPTFile(filePath : String)
+    + accept(visitor : visitor) : void
+}
+
+class WordFile {
+    + WordFile(filePath : String)
+    + accept(visitor : visitor) : void
+}
+
+interface Visitor {
+    + visit(pdfFile : PDFFile)
+    + visit(pptFile : PPTFile)
+    + visit(wordFile : WordFile)
+}
+
+class CompressVisitor {
+    + visit(pdfFile : PDFFile)
+    + visit(pptFile : PPTFile)
+    + visit(wordFile : WordFile)
+}
+
+class ExtractVisitor {
+    + visit(pdfFile : PDFFile)
+    + visit(pptFile : PPTFile)
+    + visit(wordFile : WordFile)
+}
+
+class Operator {
+    + add(resourceFile : ResourceFile) : void
+    + remove(resourceFile : ResourceFile) : void
+    + accept(visitor : Visitor) : void
+}
+
+PDFFile ..|> ResourceFile
+PPTFile ..|> ResourceFile
+WordFile ..|> ResourceFile
+
+ExtractVisitor ..|> Visitor
+CompressVisitor ..|> Visitor
+
+Operator o-- ResourceFile
+App ..> Operator
+App ..> Visitor
+
+@enduml
