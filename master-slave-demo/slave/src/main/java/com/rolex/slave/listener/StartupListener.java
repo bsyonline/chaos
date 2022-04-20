@@ -1,13 +1,11 @@
 package com.rolex.slave.listener;
 
-import com.rolex.common.cache.RouteCache;
-import com.rolex.common.model.RouteInfo;
-import com.rolex.slave.client.NettyClient;
-import com.rolex.slave.exec.SubReactor;
+import com.rolex.discovery.broadcast.BroadcastService;
+import com.rolex.discovery.broadcast.SubService;
+import com.rolex.discovery.routing.RouteCache;
+import com.rolex.discovery.routing.RouteInfo;
+import com.rolex.slave.exec.Reactor;
 import com.rolex.slave.exec.SubReactorThread;
-import com.rolex.slave.exec.WorkerThread;
-import com.rolex.slave.service.BroadcastService;
-import com.rolex.slave.service.SubService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,14 +36,14 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     ExecutorService subReactorThreadPool = Executors.newFixedThreadPool(5);
 
+
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        log.info("=====================onApplicationEvent=======================");
         new BroadcastThread().start();
         new RegistryInfoCheckThread().start();
-//        workerThreadPool.submit(WorkerThread::new);
-        subReactorThreadPool.submit(new SubReactorThread(new SubReactor()));
-//        new Thread(new SubReactorThread(new SubReactor())).start();
+        new Thread(new SubReactorThread(Reactor.taskBufferQueue)).start();
     }
 
     class BroadcastThread extends Thread {

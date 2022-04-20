@@ -21,7 +21,7 @@ public class TestController {
     DispatcherService dispatcherService;
 
     @GetMapping("/test/{msg}")
-    public String test(@PathVariable("msg") String msg) {
+    public String test(@PathVariable("msg") String msg) throws InterruptedException {
         dispatcherService.dispatch(msg);
         return "OK";
     }

@@ -24,7 +24,7 @@ public class WorkerThread extends Thread{
     @Override
     public void run() {
         log.info("开始执行：{}", msg);
-        Thread.sleep(5000);
+        Thread.sleep(15000);
         log.info("执行结束：{}", msg);
     }
 }

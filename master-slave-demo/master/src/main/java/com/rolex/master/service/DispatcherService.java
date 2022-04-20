@@ -1,7 +1,5 @@
 package com.rolex.master.service;
 
-import com.rolex.master.model.DispatchResponse;
-
 /**
  * <P>
  *
@@ -11,5 +9,5 @@ import com.rolex.master.model.DispatchResponse;
  * @since 2022
  */
 public interface DispatcherService {
-    void dispatch(String msg);
+    void dispatch(String msg) throws InterruptedException;
 }

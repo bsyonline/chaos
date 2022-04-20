@@ -4,6 +4,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <P>
@@ -15,16 +18,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class ExecutorContext {
 
-    static BlockingQueue taskBlockingQueue = new LinkedBlockingQueue<>();
-    static ExecutorService workerThreadPool = Executors.newFixedThreadPool(5);
-
-    public static BlockingQueue getTaskBlockingQueue() {
-        return taskBlockingQueue;
-    }
-
-    public static void setTaskBlockingQueue(BlockingQueue taskBlockingQueue) {
-        ExecutorContext.taskBlockingQueue = taskBlockingQueue;
-    }
+    static BlockingQueue synchronousQueue = new SynchronousQueue();
+    static ExecutorService workerThreadPool = new ThreadPoolExecutor(5,5,0, TimeUnit.SECONDS, synchronousQueue);
 
     public static ExecutorService getWorkerThreadPool() {
         return workerThreadPool;

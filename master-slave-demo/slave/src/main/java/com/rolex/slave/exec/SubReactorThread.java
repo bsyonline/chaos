@@ -3,6 +3,9 @@ package com.rolex.slave.exec;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+
 /**
  * <P>
  *
@@ -14,18 +17,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SubReactorThread implements Runnable {
 
-    SubReactor reactor;
-
-    public SubReactorThread(SubReactor reactor) {
-        this.reactor = reactor;
+    BlockingQueue<String> queue;
+    public SubReactorThread(BlockingQueue<String> queue) {
+        this.queue = queue;
     }
 
     @SneakyThrows
     @Override
     public void run() {
         while(true) {
-            log.info("=========sub reactor");
-            reactor.dispatch();
+            String traceId = UUID.randomUUID().toString();
+            log.info("{} take job before, queue size is {}", traceId, queue.size());
+            String take = queue.take();
+            log.info("{} take job after {}, queue size is {}", traceId, take, queue.size());
+            ExecutorContext.getWorkerThreadPool().submit(new WorkerThread(take));
         }
     }
 }

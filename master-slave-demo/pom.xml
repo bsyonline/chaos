@@ -15,7 +15,9 @@
     <modules>
         <module>master</module>
         <module>slave</module>
-        <module>common</module>
+        <module>reactor</module>
+        <module>rpc</module>
+        <module>discovery</module>
     </modules>
 
     <properties>
@@ -24,11 +26,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>4.1.36.Final</version>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -52,6 +49,16 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.79</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.1.5</version>
         </dependency>
     </dependencies>
 
