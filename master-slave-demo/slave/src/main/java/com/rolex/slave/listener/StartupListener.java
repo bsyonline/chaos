@@ -2,8 +2,11 @@ package com.rolex.slave.listener;
 
 import com.rolex.discovery.broadcast.BroadcastService;
 import com.rolex.discovery.broadcast.SubService;
-import com.rolex.discovery.routing.RouteCache;
-import com.rolex.discovery.routing.RouteInfo;
+import com.rolex.discovery.routing.RoutingCache;
+import com.rolex.discovery.routing.RoutingInfo;
+import com.rolex.discovery.thread.BroadcastThread;
+import com.rolex.discovery.thread.RoutingCheckThread;
+import com.rolex.discovery.util.Constants;
 import com.rolex.slave.exec.Reactor;
 import com.rolex.slave.exec.SubReactorThread;
 import lombok.SneakyThrows;
@@ -34,59 +37,13 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Autowired
     BroadcastService broadcastService;
 
-    ExecutorService subReactorThreadPool = Executors.newFixedThreadPool(5);
-
-
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         log.info("=====================onApplicationEvent=======================");
-        new BroadcastThread().start();
-        new RegistryInfoCheckThread().start();
+        new BroadcastThread(broadcastService).start();
+        new RoutingCheckThread().start();
         new Thread(new SubReactorThread(Reactor.taskBufferQueue)).start();
     }
 
-    class BroadcastThread extends Thread {
-        @SneakyThrows
-        @Override
-        public void run() {
-            while (true) {
-                broadcastService.broadcast();
-                Thread.sleep(10000);
-            }
-        }
-    }
-
-    class RegistryInfoCheckThread extends Thread {
-        @SneakyThrows
-        @Override
-        public void run() {
-            while (true) {
-                Map<String, Map<Integer, RouteInfo>> registry = RouteCache.getRouteInfo();
-                for (Map.Entry<String, Map<Integer, RouteInfo>> kv : registry.entrySet()) {
-                    String type = kv.getKey();
-                    Map<Integer, RouteInfo> map = kv.getValue();
-                    if ("server".equals(type)) {
-                        for (Map.Entry<Integer, RouteInfo> skv : map.entrySet()) {
-                            Integer nodeId = skv.getKey();
-                            long timestamp = skv.getValue().getTimestamp();
-                            if (timestamp < System.currentTimeMillis() - 3000 * 2) {
-                                registry.remove(nodeId);
-                            }
-                        }
-                    }
-                    if ("client".equals(type)) {
-                        for (Map.Entry<Integer, RouteInfo> skv : map.entrySet()) {
-                            Integer nodeId = skv.getKey();
-                            long timestamp = skv.getValue().getTimestamp();
-                            if (timestamp < System.currentTimeMillis() - 3000 * 2) {
-                                registry.remove(nodeId);
-                            }
-                        }
-                    }
-                }
-                Thread.sleep(1000);
-            }
-        }
-    }
 }

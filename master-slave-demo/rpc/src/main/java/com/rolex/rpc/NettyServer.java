@@ -7,7 +7,7 @@ import com.rolex.rpc.codec.MsgDecoder;
 import com.rolex.rpc.codec.MsgEncoder;
 import com.rolex.rpc.handler.NettyServerHandler;
 import com.rolex.rpc.model.Manager;
-import com.rolex.rpc.processor.NettyRequestProcessor;
+import com.rolex.rpc.processor.NettyProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -46,7 +46,7 @@ public class NettyServer {
      * @param commandType command type
      * @param processor processor
      */
-    public void registerProcessor(final CommandType commandType, final NettyRequestProcessor processor) {
+    public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
     }
 
@@ -57,7 +57,7 @@ public class NettyServer {
      * @param processor processor
      * @param executor thread executor
      */
-    public void registerProcessor(final CommandType commandType, final NettyRequestProcessor processor, final ExecutorService executor) {
+    public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         this.serverHandler.registerProcessor(commandType, processor, executor);
     }
 

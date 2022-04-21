@@ -3,15 +3,16 @@
  */
 package com.rolex.rpc.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import com.rolex.rpc.CommandType;
-import com.rolex.rpc.NettyClient;
+import com.rolex.rpc.ConnectionManager;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
-import com.rolex.rpc.processor.NettyRequestProcessor;
+import com.rolex.rpc.processor.NettyProcessor;
+import com.rolex.rpc.rebalance.Strategy;
 import com.rolex.rpc.util.Pair;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -26,25 +28,37 @@ import java.util.concurrent.RejectedExecutionException;
  * @since 2019
  */
 @Slf4j
+@ChannelHandler.Sharable
 public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
 
-    private final ConcurrentHashMap<CommandType, Pair<NettyRequestProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
-    NettyClient nettyClient;
+    private final ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
+    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
+    private Strategy serverSelectorStrategy;
 
-    public NettyClientHandler(NettyClient nettyClient) {
-        this.nettyClient = nettyClient;
+    public Strategy getServerSelectorStrategy() {
+        return serverSelectorStrategy;
     }
 
-    public void registerProcessor(final CommandType commandType, final NettyRequestProcessor processor) {
+    public void setServerSelectorStrategy(Strategy serverSelectorStrategy) {
+        this.serverSelectorStrategy = serverSelectorStrategy;
+    }
+
+    public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
     }
 
-    public void registerProcessor(final CommandType commandType, final NettyRequestProcessor processor, final ExecutorService executor) {
+    public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         ExecutorService executorRef = executor;
         if (executorRef == null) {
-            executorRef = nettyClient.getDefaultExecutor();
+            executorRef = defaultExecutor;
         }
         this.processors.putIfAbsent(commandType, new Pair<>(processor, executorRef));
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        log.info("master offline and reconnect");
+        new ConnectionManager(this).reconnect();
     }
 
     @Override
@@ -59,11 +73,11 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
      * process received logic
      *
      * @param channel channel
-     * @param msg message
+     * @param msg     message
      */
     private void processReceived(final Channel channel, final MsgBody msg) {
         final CommandType commandType = msg.getType();
-        final Pair<NettyRequestProcessor, ExecutorService> pair = processors.get(commandType);
+        final Pair<NettyProcessor, ExecutorService> pair = processors.get(commandType);
         if (pair != null) {
             Runnable r = () -> {
                 try {
@@ -115,6 +129,5 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
         Msg msg = new Msg(content.length, content);
         ctx.writeAndFlush(msg);
     }
-
 
 }

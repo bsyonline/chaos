@@ -22,7 +22,7 @@ import io.netty.channel.Channel;
 /**
  *  netty request processor
  */
-public interface NettyRequestProcessor {
+public interface NettyProcessor {
 
     /**
      *  process logic

@@ -3,21 +3,20 @@
  */
 package com.rolex.rpc.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyServer;
 import com.rolex.rpc.model.Manager;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
-import com.rolex.rpc.processor.NettyRequestProcessor;
+import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.util.Pair;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.internal.ChannelUtils;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +30,10 @@ import java.util.concurrent.RejectedExecutionException;
  * @since 2019
  */
 @Slf4j
+@ChannelHandler.Sharable
 public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
 
-    private final ConcurrentHashMap<CommandType, Pair<NettyRequestProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
     static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     Manager manager;
     NettyServer nettyServer;
@@ -46,7 +46,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
         this.manager = manager;
     }
 
-    public void registerProcessor(final CommandType commandType, final NettyRequestProcessor processor) {
+    public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
     }
 
@@ -57,7 +57,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
      * @param processor processor
      * @param executor thread executor
      */
-    public void registerProcessor(final CommandType commandType, final NettyRequestProcessor processor, final ExecutorService executor) {
+    public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         ExecutorService executorRef = executor;
         if (executorRef == null) {
             executorRef = nettyServer.getDefaultExecutor();
@@ -95,7 +95,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
      */
     private void processReceived(final Channel channel, final MsgBody msg) {
         final CommandType commandType = msg.getType();
-        final Pair<NettyRequestProcessor, ExecutorService> pair = processors.get(commandType);
+        final Pair<NettyProcessor, ExecutorService> pair = processors.get(commandType);
         if (pair != null) {
             Runnable r = () -> {
                 try {

@@ -2,8 +2,8 @@ package com.rolex.discovery.broadcast.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rolex.discovery.broadcast.SubService;
-import com.rolex.discovery.routing.RouteCache;
-import com.rolex.discovery.routing.RouteInfo;
+import com.rolex.discovery.routing.RoutingCache;
+import com.rolex.discovery.routing.RoutingInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,8 +22,8 @@ public class SubServiceImpl implements SubService {
     @Override
     public void sub(String message) {
         log.info("收到广播消息：{}", message);
-        RouteInfo routeInfo = JSONObject.parseObject(message, RouteInfo.class);
-        RouteCache.addRegistry(routeInfo);
+        RoutingInfo routingInfo = JSONObject.parseObject(message, RoutingInfo.class);
+        RoutingCache.addRegistry(routingInfo);
     }
 
 }

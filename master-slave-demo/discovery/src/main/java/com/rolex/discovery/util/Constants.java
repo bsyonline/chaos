@@ -10,4 +10,5 @@ package com.rolex.discovery.util;
  */
 public class Constants {
     public static final String ROUTE_INFO_TOPIC = "dts-route-topic";
+    public static final int BROADCAST_TIME_MILLIS = 10000;
 }

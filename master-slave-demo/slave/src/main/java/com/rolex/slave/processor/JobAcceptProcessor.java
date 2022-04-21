@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
-import com.rolex.rpc.processor.NettyRequestProcessor;
+import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.util.SerializationUtils;
 import com.rolex.slave.exec.MainReactor;
 import io.netty.channel.Channel;
@@ -19,12 +19,11 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2022
  */
 @Slf4j
-public class JobAcceptProcessor implements NettyRequestProcessor {
+public class JobAcceptProcessor implements NettyProcessor {
     @Override
     public void process(Channel channel, MsgBody msg) throws InterruptedException {
         log.info("收到派发的作业 {} 准备接收", JSONObject.toJSONString(msg));
         boolean accept = MainReactor.accept("" + msg.getJobId());
-        Thread.sleep(100000);
         log.info("收到派发的作业 {} 接收状态", JSONObject.toJSONString(msg), accept);
         if (accept) {
             log.info("收到派发的作业 {} 并返回ack", JSONObject.toJSONString(msg));

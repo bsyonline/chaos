@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
-import com.rolex.rpc.processor.NettyRequestProcessor;
+import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2022
  */
 @Slf4j
-public class PingProcessor implements NettyRequestProcessor {
+public class PingProcessor implements NettyProcessor {
     @Override
     public void process(Channel channel, MsgBody msgBody) throws InterruptedException {
         MsgBody pong = new MsgBody();
