@@ -9,7 +9,7 @@ import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
 import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.rebalance.Strategy;
-import com.rolex.rpc.util.Pair;
+import com.rolex.discovery.util.Pair;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -57,7 +57,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        log.info("master offline and reconnect");
+        log.info("master {} offline and reconnect", ctx.channel().remoteAddress().toString());
         new ConnectionManager(this).reconnect();
     }
 

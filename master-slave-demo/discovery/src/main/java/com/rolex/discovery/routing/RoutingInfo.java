@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <P>
@@ -20,22 +22,18 @@ import java.util.List;
 public class RoutingInfo {
     List<RoutingInfoObserver> observers = new ArrayList<>();
 
-    public RoutingInfo(int nodeId, String ip, int port, NodeType type, long timestamp, String connectedServer) {
-        this.nodeId = nodeId;
-        this.ip = ip;
-        this.port = port;
+    public RoutingInfo(Host host, NodeType type, long timestamp, Set<Host> connected) {
+        this.host = host;
         this.type = type;
         this.timestamp = timestamp;
-        this.connectedServer = connectedServer;
+        this.connected.addAll(connected);
         this.addObserver(new RoutingInfoObserver());
     }
 
-    int nodeId;
-    String ip;
-    int port;
+    Host host;
     NodeType type;
     long timestamp;
-    String connectedServer;
+    Set<Host> connected = new HashSet<>();
 
     public void addObserver(RoutingInfoObserver observer) {
         observers.add(observer);

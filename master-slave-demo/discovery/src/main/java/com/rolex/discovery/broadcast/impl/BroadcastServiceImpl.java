@@ -3,7 +3,9 @@ package com.rolex.discovery.broadcast.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.rolex.discovery.broadcast.BroadcastService;
 import com.rolex.discovery.broadcast.PubService;
+import com.rolex.discovery.routing.Host;
 import com.rolex.discovery.routing.NodeType;
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.routing.RoutingInfo;
 import com.rolex.discovery.util.NetUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +37,7 @@ public class BroadcastServiceImpl implements BroadcastService {
 
     @Override
     public void broadcast() throws Exception {
-        String broadcast = JSONObject.toJSONString(new RoutingInfo(nodeId, NetUtils.getSiteIP(), port, NodeType.valueOf(type), System.currentTimeMillis(), null));
+        String broadcast = JSONObject.toJSONString(new RoutingInfo(Host.of(NetUtils.getSiteIP(), port), NodeType.valueOf(type), System.currentTimeMillis(), RoutingCache.getConnects()));
         log.info("广播节点信息：{}", broadcast);
         pubService.pub(broadcast);
     }

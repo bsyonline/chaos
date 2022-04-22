@@ -1,6 +1,6 @@
 package com.rolex.rpc.rebalance;
 
-import com.rolex.rpc.model.ServerInfo;
+import com.rolex.discovery.routing.Host;
 
 /**
  * <P>
@@ -11,5 +11,5 @@ import com.rolex.rpc.model.ServerInfo;
  * @since 2022
  */
 public interface Strategy {
-    ServerInfo select();
+    Host select();
 }

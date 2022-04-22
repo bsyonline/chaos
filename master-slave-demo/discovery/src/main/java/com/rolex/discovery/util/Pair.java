@@ -1,4 +1,4 @@
-package com.rolex.rpc.util;
+package com.rolex.discovery.util;
 
 /**
  * key value pair

@@ -7,7 +7,7 @@ import com.rolex.discovery.util.Constants;
 import com.rolex.rpc.codec.MsgDecoder;
 import com.rolex.rpc.codec.MsgEncoder;
 import com.rolex.rpc.handler.NettyClientHandler;
-import com.rolex.rpc.model.ServerInfo;
+import com.rolex.discovery.routing.Host;
 import com.rolex.rpc.rebalance.Strategy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -57,26 +57,26 @@ public class ConnectionManager {
     }
 
     public void connect() throws InterruptedException {
-        ServerInfo serverInfo = serverSelectorStrategy.select();
-        log.info("starting connect to server {}", serverInfo);
-        start(serverInfo);
+        Host host = serverSelectorStrategy.select();
+        log.info("starting connect to server {}", host);
+        start(host);
     }
 
     public void reconnect() throws InterruptedException {
         Thread.sleep(Constants.BROADCAST_TIME_MILLIS * 3 + 1000);
         waitingForServerOnline();
-        ServerInfo serverInfo = serverSelectorStrategy.select();
-        log.info("断线重连 {}", serverInfo);
-        start(serverInfo);
+        Host host = serverSelectorStrategy.select();
+        log.info("断线重连 {}", host);
+        start(host);
     }
 
     private void waitingForServerOnline() throws InterruptedException {
         while (!connected) {
-            Map<NodeType, Map<Integer, RoutingInfo>> registry = RoutingCache.getRoutingInfo();
-            Map<Integer, RoutingInfo> serverInfo = registry.get("server");
+            Map<NodeType, Map<Host, RoutingInfo>> registry = RoutingCache.getRoutingInfo();
+            Map<Host, RoutingInfo> serverInfo = registry.get(NodeType.server);
             if (serverInfo == null || serverInfo.isEmpty()) {
-                log.info("等待master上线");
-                Thread.sleep(3000);
+                log.info("等待server上线");
+                Thread.sleep(Constants.WAIT_SERVER_TIME_MILLIS);
             } else {
                 connected = true;
                 log.info("发现server的注册信息：{}", serverInfo);
@@ -84,12 +84,12 @@ public class ConnectionManager {
         }
     }
 
-    public void start(ServerInfo serverInfo) throws InterruptedException {
+    public void start(Host host) throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
-                .remoteAddress(new InetSocketAddress(serverInfo.getHost(), serverInfo.getPort()))
+                .remoteAddress(new InetSocketAddress(host.getHost(), host.getPort()))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {

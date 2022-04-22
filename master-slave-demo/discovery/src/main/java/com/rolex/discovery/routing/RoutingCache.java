@@ -1,10 +1,14 @@
 package com.rolex.discovery.routing;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.rolex.discovery.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * <P>
@@ -17,29 +21,37 @@ import java.util.Map;
 @Slf4j
 public class RoutingCache {
     // TODO: 2022/3/7 lru cache
-    public static Map<NodeType, Map<Integer, RoutingInfo>> routingInfoCache = Maps.newConcurrentMap();
-    public static String connected = null;
+    public static Map<NodeType, Map<Host, RoutingInfo>> routingInfoCache = Maps.newConcurrentMap();
+    /*
+        <ip:port, ts>
+     */
+    public static Set<Host> connectSet = Sets.newConcurrentHashSet();
 
-    public static String getConnected() {
-        return connected;
+    public static Set<Host> getConnects() {
+        return connectSet;
     }
 
-    public static void setConnected(String connected) {
-        RoutingCache.connected = connected;
+    public static void removeConnect(Host host) {
+        RoutingCache.connectSet.remove(host);
     }
 
-    public static Map<NodeType, Map<Integer, RoutingInfo>> getRoutingInfo() {
+    public static void addConnect(Host host) {
+        RoutingCache.connectSet.add(host);
+    }
+
+    public static Map<NodeType, Map<Host, RoutingInfo>> getRoutingInfo() {
         return routingInfoCache;
     }
 
     public static void addRegistry(RoutingInfo routingInfo) {
-        if (routingInfoCache.get(routingInfo.getType()) == null) {
-            HashMap<Integer, RoutingInfo> map = Maps.newHashMap();
-            map.put(routingInfo.getNodeId(), routingInfo);
+        Map<Host, RoutingInfo> routingInfoMap = routingInfoCache.get(routingInfo.getType());
+        if (routingInfoMap == null) {
+            HashMap<Host, RoutingInfo> map = Maps.newHashMap();
+            map.put(routingInfo.getHost(), routingInfo);
             routingInfoCache.put(routingInfo.getType(), map);
         } else {
-            routingInfoCache.get(routingInfo.getType()).put(routingInfo.getNodeId(), routingInfo);
+            routingInfoMap.put(routingInfo.getHost(), routingInfo);
         }
-        log.info("路由信息为：{}", routingInfoCache);
     }
+
 }

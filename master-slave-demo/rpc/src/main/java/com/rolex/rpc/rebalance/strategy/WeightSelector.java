@@ -1,6 +1,6 @@
 package com.rolex.rpc.rebalance.strategy;
 
-import com.rolex.rpc.model.ServerInfo;
+import com.rolex.discovery.routing.Host;
 import com.rolex.rpc.rebalance.Strategy;
 
 /**
@@ -13,7 +13,7 @@ import com.rolex.rpc.rebalance.Strategy;
  */
 public class WeightSelector implements Strategy {
     @Override
-    public ServerInfo select() {
+    public Host select() {
         return null;
     }
 }

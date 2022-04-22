@@ -3,13 +3,15 @@
  */
 package com.rolex.rpc.handler;
 
+import com.rolex.discovery.routing.Host;
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyServer;
 import com.rolex.rpc.model.Manager;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
 import com.rolex.rpc.processor.NettyProcessor;
-import com.rolex.rpc.util.Pair;
+import com.rolex.discovery.util.Pair;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -17,10 +19,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
@@ -54,8 +58,8 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
      * register processor
      *
      * @param commandType command type
-     * @param processor processor
-     * @param executor thread executor
+     * @param processor   processor
+     * @param executor    thread executor
      */
     public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         ExecutorService executorRef = executor;
@@ -70,12 +74,15 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
         channels.add(ctx.channel());
         log.info("name={}, id={}", ctx.name(), ctx.channel().id().asLongText());
         manager.addChannel(ctx.channel().id().asLongText(), ctx.channel());
-        System.out.println(ctx.channel().remoteAddress() + "加入");
+        RoutingCache.addConnect(getClientHost(ctx));
+        log.info("客户端ip地址：{}", getClientHost(ctx));
+        log.info("连接的server地址：{}", getServerHost(ctx));
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         manager.removeChannel(ctx.channel().id().asLongText());
+        RoutingCache.removeConnect(getClientHost(ctx));
         System.out.println(ctx.channel().remoteAddress() + "下线");
     }
 
@@ -87,11 +94,25 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
         processReceived(ctx.channel(), msgBody);
     }
 
+    private Host getServerHost(ChannelHandlerContext ctx) {
+        SocketChannel socketChannel = (SocketChannel) ctx.channel();
+        int localPort = socketChannel.localAddress().getPort();
+        String localAddress = socketChannel.localAddress().getAddress().getHostAddress();
+        return Host.of(localAddress, localPort);
+    }
+
+    private Host getClientHost(ChannelHandlerContext ctx) {
+        InetSocketAddress ipSocket = (InetSocketAddress) ctx.channel().remoteAddress();
+        String clientIp = ipSocket.getAddress().getHostAddress();
+        int port = ipSocket.getPort();
+        return Host.of(clientIp, port);
+    }
+
     /**
      * process received logic
      *
      * @param channel channel
-     * @param msg message
+     * @param msg     message
      */
     private void processReceived(final Channel channel, final MsgBody msg) {
         final CommandType commandType = msg.getType();
