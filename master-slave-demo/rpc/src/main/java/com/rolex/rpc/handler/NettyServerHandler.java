@@ -82,7 +82,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
         channels.add(ctx.channel());
         log.info("name={}, id={}", ctx.name(), ctx.channel().id().asLongText());
         manager.addChannel(getClientHost(ctx), ctx.channel());
-        routingCache.addConnect(getClientHost(ctx));
+        routingCache.addConnect(getClientHost(ctx), ctx.channel());
         log.info("客户端ip地址：{}", getClientHost(ctx));
         log.info("连接的server地址：{}", getServerHost(ctx));
     }

@@ -108,9 +108,5 @@ public class NettyServer {
         }
     }
 
-    private void setServerLocalRoutingInfo() {
-        routingCache.setLocalRoutingInfo("host", host);
-        routingCache.setLocalRoutingInfo("port", port);
-        routingCache.setLocalRoutingInfo("state", NodeState.ready);
-    }
+
 }

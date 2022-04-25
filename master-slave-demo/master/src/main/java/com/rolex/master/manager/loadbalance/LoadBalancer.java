@@ -1,6 +1,7 @@
-package com.rolex.master.manager;
+package com.rolex.master.manager.loadbalance;
 
 import io.netty.channel.Channel;
+
 
 /**
  * <P>
@@ -11,5 +12,5 @@ import io.netty.channel.Channel;
  * @since 2022
  */
 public interface LoadBalancer {
-    LoadBalanceStrategy select();
+    Channel select();
 }

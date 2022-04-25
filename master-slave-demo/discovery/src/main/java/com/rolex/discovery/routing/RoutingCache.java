@@ -1,14 +1,12 @@
 package com.rolex.discovery.routing;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * <P>
@@ -24,10 +22,7 @@ public class RoutingCache {
     // TODO: 2022/3/7 lru cache
     public Map<NodeType, Map<Host, RoutingInfo>> routingInfoCache = Maps.newConcurrentMap();
     public Map<String, Object> localRoutingInfo = Maps.newConcurrentMap();
-    /*
-        <ip:port, ts>
-     */
-    public Set<Host> connectSet = Sets.newConcurrentHashSet();
+    public Map<Host, Channel> connectMap = Maps.newConcurrentMap();
 
     public Map<String, Object> getLocalRoutingInfo() {
         return localRoutingInfo;
@@ -41,16 +36,16 @@ public class RoutingCache {
         localRoutingInfo = Maps.newConcurrentMap();
     }
 
-    public Set<Host> getConnects() {
-        return connectSet;
+    public Map<Host, Channel> getConnects() {
+        return connectMap;
     }
 
     public void removeConnect(Host host) {
-        connectSet.remove(host);
+        connectMap.remove(host);
     }
 
-    public void addConnect(Host host) {
-        connectSet.add(host);
+    public void addConnect(Host host, Channel channel) {
+        connectMap.put(host, channel);
     }
 
     public Map<NodeType, Map<Host, RoutingInfo>> getRoutingInfo() {

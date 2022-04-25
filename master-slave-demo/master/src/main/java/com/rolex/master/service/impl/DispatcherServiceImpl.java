@@ -1,8 +1,6 @@
 package com.rolex.master.service.impl;
 
 import com.rolex.master.manager.ExecutorManager;
-import com.rolex.master.manager.LoadBalanceStrategy;
-import com.rolex.master.manager.LoadBalancer;
 import com.rolex.master.service.DispatcherService;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.exception.RpcTimeoutException;
@@ -29,15 +27,12 @@ import org.springframework.stereotype.Component;
 public class DispatcherServiceImpl implements DispatcherService {
 
     @Autowired
-    LoadBalancer loadBalancer;
-    @Autowired
     ExecutorManager executorManager;
     Long count = 1001L;
 
     @Override
     public void dispatch(String msg) throws InterruptedException {
-        LoadBalanceStrategy lb = loadBalancer.select();
-        Channel channel = lb.getChannel(executorManager);
+        Channel channel = executorManager.select();
         if (channel != null) {
             Long jobId = count++;
             log.info("send before {}", jobId);

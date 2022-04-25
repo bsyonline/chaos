@@ -46,7 +46,7 @@ public class BroadcastServiceImpl implements BroadcastService {
         RoutingInfo routingInfo = RoutingInfo.builder()
                 .host(Host.of(NetUtils.getSiteIP(), getPort()))
                 .type(NodeType.valueOf(type))
-                .connected(routingCache.getConnects())
+                .connected(routingCache.getConnects().keySet())
                 .metrics(Metrics.of(OShiUtils.getCpuLoad(), OShiUtils.getMemoryLoad()))
                 .build();
         String broadcast = JSONObject.toJSONString(routingInfo);
