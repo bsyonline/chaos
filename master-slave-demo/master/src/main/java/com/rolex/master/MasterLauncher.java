@@ -1,5 +1,6 @@
 package com.rolex.master;
 
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.util.NetUtils;
 import com.rolex.master.manager.ExecutorManager;
 import com.rolex.rpc.CommandType;
@@ -35,6 +36,8 @@ public class MasterLauncher implements CommandLineRunner{
     int port;
     @Autowired
     ExecutorManager executorManager;
+    @Autowired
+    RoutingCache routingCache;
 
     @Override
     public void run(String... args) throws Exception {
@@ -43,6 +46,7 @@ public class MasterLauncher implements CommandLineRunner{
         nettyServer.registerProcessor(CommandType.ACK, new ReceiveAckProcessor());
         nettyServer.registerProcessor(CommandType.NACK, new ReceiveNackProcessor());
         nettyServer.executorManager(executorManager);
+        nettyServer.setRoutingCache(routingCache);
         nettyServer.start();
     }
 }

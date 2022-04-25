@@ -38,9 +38,7 @@ public class DispatcherServiceImpl implements DispatcherService {
     public void dispatch(String msg) throws InterruptedException {
         LoadBalanceStrategy lb = loadBalancer.select();
         Channel channel = lb.getChannel(executorManager);
-        if (!channel.isActive()) {
-            executorManager.removeChannel(channel.id().asLongText());
-        } else {
+        if (channel != null) {
             Long jobId = count++;
             log.info("send before {}", jobId);
             send(channel, jobId);

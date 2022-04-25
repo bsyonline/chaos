@@ -3,6 +3,8 @@ package com.rolex.rpc.rebalance.strategy;
 import com.rolex.discovery.routing.Host;
 import com.rolex.rpc.rebalance.Strategy;
 
+import java.util.List;
+
 /**
  * <P>
  *
@@ -13,7 +15,7 @@ import com.rolex.rpc.rebalance.Strategy;
  */
 public class ConfigSelector implements Strategy {
     @Override
-    public Host select() {
+    public Host select(List<Host> servers) {
         return null;
     }
 }

@@ -1,5 +1,6 @@
 package com.rolex.rpc.model;
 
+import com.rolex.discovery.routing.Host;
 import io.netty.channel.Channel;
 
 import java.util.Map;
@@ -13,9 +14,9 @@ import java.util.Map;
  * @since 2022
  */
 public interface Manager {
-    void addChannel(String name, Channel channel);
+    void addChannel(Host host, Channel channel);
 
-    void removeChannel(String name);
+    void removeChannel(Host host);
 
-    Map<String, Channel> getChannels();
+    Map<Host, Channel> getChannels();
 }

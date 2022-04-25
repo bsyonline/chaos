@@ -3,8 +3,12 @@
  */
 package com.rolex.rpc.handler;
 
+import com.rolex.discovery.routing.LocalRoutingInfo;
+import com.rolex.discovery.routing.NodeState;
+import com.rolex.discovery.routing.NodeType;
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.rpc.CommandType;
-import com.rolex.rpc.ConnectionManager;
+import com.rolex.rpc.manager.ConnectionManager;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
 import com.rolex.rpc.processor.NettyProcessor;
@@ -15,9 +19,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.local.LocalAddress;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,6 +41,15 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
     private final ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
     private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
     private Strategy serverSelectorStrategy;
+    private RoutingCache routingCache;
+
+    public RoutingCache getRoutingCache() {
+        return routingCache;
+    }
+
+    public void setRoutingCache(RoutingCache routingCache) {
+        this.routingCache = routingCache;
+    }
 
     public Strategy getServerSelectorStrategy() {
         return serverSelectorStrategy;
@@ -59,6 +75,12 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         log.info("master {} offline and reconnect", ctx.channel().remoteAddress().toString());
         new ConnectionManager(this).reconnect();
+
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        setClientLocalRoutingInfo(ctx);
     }
 
     @Override
@@ -128,6 +150,16 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
         byte[] content = SerializationUtils.serialize(request, MsgBody.class);
         Msg msg = new Msg(content.length, content);
         ctx.writeAndFlush(msg);
+    }
+
+    private void setClientLocalRoutingInfo(ChannelHandlerContext ctx){
+        SocketChannel socketChannel = (SocketChannel) ctx.channel();
+        int localPort = socketChannel.localAddress().getPort();
+        String localAddress = socketChannel.localAddress().getAddress().getHostAddress();
+
+        routingCache.setLocalRoutingInfo("host", localAddress);
+        routingCache.setLocalRoutingInfo("port", localPort);
+        routingCache.setLocalRoutingInfo("state", NodeState.ready);
     }
 
 }

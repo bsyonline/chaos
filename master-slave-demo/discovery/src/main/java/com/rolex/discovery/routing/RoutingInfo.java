@@ -18,15 +18,18 @@ import java.util.Set;
  * @since 2022
  */
 @Data
-@AllArgsConstructor
 public class RoutingInfo {
     List<RoutingInfoObserver> observers = new ArrayList<>();
 
-    public RoutingInfo(Host host, NodeType type, long timestamp, Set<Host> connected) {
+    RoutingInfo() {
+    }
+
+    RoutingInfo(Host host, NodeType type, long timestamp, Set<Host> connected, Metrics metrics) {
         this.host = host;
         this.type = type;
         this.timestamp = timestamp;
         this.connected.addAll(connected);
+        this.metrics = metrics;
         this.addObserver(new RoutingInfoObserver());
     }
 
@@ -34,6 +37,43 @@ public class RoutingInfo {
     NodeType type;
     long timestamp;
     Set<Host> connected = new HashSet<>();
+    Metrics metrics;
+
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        Host host;
+        NodeType type;
+        Set<Host> connected = new HashSet<>();
+        Metrics metrics;
+
+        public RoutingInfo.Builder host(Host host) {
+            this.host = host;
+            return this;
+        }
+
+        public RoutingInfo.Builder type(NodeType type) {
+            this.type = type;
+            return this;
+        }
+
+        public RoutingInfo.Builder connected(Set<Host> connected) {
+            this.connected = connected;
+            return this;
+        }
+
+        public RoutingInfo.Builder metrics(Metrics metrics) {
+            this.metrics = metrics;
+            return this;
+        }
+
+        public RoutingInfo build() {
+            return new RoutingInfo(this.host, this.type, System.currentTimeMillis(), this.connected, this.metrics);
+        }
+    }
 
     public void addObserver(RoutingInfoObserver observer) {
         observers.add(observer);

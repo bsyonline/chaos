@@ -3,7 +3,9 @@
  */
 package com.rolex.rpc;
 
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.rpc.handler.NettyClientHandler;
+import com.rolex.rpc.manager.ConnectionManager;
 import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.rebalance.Strategy;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,10 @@ public class NettyClient {
 
     public void setServerSelectorStrategy(Strategy serverSelectorStrategy) {
         this.clientHandler.setServerSelectorStrategy(serverSelectorStrategy);
+    }
+
+    public void setRoutingCache(RoutingCache routingCache) {
+        this.clientHandler.setRoutingCache(routingCache);
     }
 
     /**

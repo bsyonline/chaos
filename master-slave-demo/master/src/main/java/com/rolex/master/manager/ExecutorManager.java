@@ -1,5 +1,6 @@
 package com.rolex.master.manager;
 
+import com.rolex.discovery.routing.Host;
 import com.rolex.rpc.model.Manager;
 import io.netty.channel.Channel;
 
@@ -16,12 +17,12 @@ import java.util.Map;
 public interface ExecutorManager extends Manager {
 
     @Override
-    void addChannel(String name, Channel channel);
+    void addChannel(Host host, Channel channel);
 
     @Override
-    void removeChannel(String name);
+    void removeChannel(Host name);
 
     @Override
-    Map<String, Channel> getChannels();
+    Map<Host, Channel> getChannels();
 
 }

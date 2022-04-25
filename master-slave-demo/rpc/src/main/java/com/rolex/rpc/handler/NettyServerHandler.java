@@ -4,6 +4,9 @@
 package com.rolex.rpc.handler;
 
 import com.rolex.discovery.routing.Host;
+import com.rolex.discovery.routing.LocalRoutingInfo;
+import com.rolex.discovery.routing.NodeState;
+import com.rolex.discovery.routing.NodeType;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyServer;
@@ -41,9 +44,14 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
     static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     Manager manager;
     NettyServer nettyServer;
+    RoutingCache routingCache;
 
     public NettyServerHandler(NettyServer nettyServer) {
         this.nettyServer = nettyServer;
+    }
+
+    public void setRoutingCache(RoutingCache routingCache) {
+        this.routingCache = routingCache;
     }
 
     public void setExecutorManager(Manager manager) {
@@ -73,16 +81,17 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Msg> {
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         channels.add(ctx.channel());
         log.info("name={}, id={}", ctx.name(), ctx.channel().id().asLongText());
-        manager.addChannel(ctx.channel().id().asLongText(), ctx.channel());
-        RoutingCache.addConnect(getClientHost(ctx));
+        manager.addChannel(getClientHost(ctx), ctx.channel());
+        routingCache.addConnect(getClientHost(ctx));
         log.info("客户端ip地址：{}", getClientHost(ctx));
         log.info("连接的server地址：{}", getServerHost(ctx));
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        manager.removeChannel(ctx.channel().id().asLongText());
-        RoutingCache.removeConnect(getClientHost(ctx));
+        manager.removeChannel(getClientHost(ctx));
+        routingCache.removeConnect(getClientHost(ctx));
+        routingCache.clearLocalRoutingInfo();
         System.out.println(ctx.channel().remoteAddress() + "下线");
     }
 

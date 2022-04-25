@@ -8,6 +8,7 @@ import com.rolex.rpc.rebalance.Strategy;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,12 +24,10 @@ import java.util.Set;
 public class RandomSelector implements Strategy {
 
     @Override
-    public Host select() {
+    public Host select(List<Host> servers) {
         log.info("random select");
-        Map<Host, RoutingInfo> server = RoutingCache.getRoutingInfo().get(NodeType.server);
-        Set<Host> hosts = server.keySet();
         Host host = null;
-        Iterator<Host> iterator = hosts.iterator();
+        Iterator<Host> iterator = servers.iterator();
         while (iterator.hasNext()) {
             host = iterator.next();
         }

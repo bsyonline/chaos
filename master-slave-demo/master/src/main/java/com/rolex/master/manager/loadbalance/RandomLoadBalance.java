@@ -1,5 +1,6 @@
 package com.rolex.master.manager.loadbalance;
 
+import com.rolex.discovery.routing.Host;
 import com.rolex.master.manager.ExecutorManager;
 import com.rolex.master.manager.LoadBalanceStrategy;
 import io.netty.channel.Channel;
@@ -19,13 +20,17 @@ public class RandomLoadBalance implements LoadBalanceStrategy {
 
     @Override
     public Channel getChannel(ExecutorManager executorManager) {
-        Map<String, Channel> channels = executorManager.getChannels();
-        Iterator<String> iterator = channels.keySet().iterator();
-        String id = null;
+        Map<Host, Channel> channels = executorManager.getChannels();
+        Iterator<Host> iterator = channels.keySet().iterator();
+        Host host = null;
         if (iterator.hasNext()) {
-            id = iterator.next();
+            host = iterator.next();
         }
-        Channel channel = channels.get(id);
-        return channel;
+        Channel channel = channels.get(host);
+        if (channel.isActive()) {
+            return channel;
+        }
+        channels.remove(host);
+        return null;
     }
 }

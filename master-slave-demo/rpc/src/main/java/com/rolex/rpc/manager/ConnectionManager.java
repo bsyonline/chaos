@@ -1,5 +1,7 @@
-package com.rolex.rpc;
+package com.rolex.rpc.manager;
 
+import com.google.common.collect.Lists;
+import com.rolex.discovery.routing.Host;
 import com.rolex.discovery.routing.NodeType;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.routing.RoutingInfo;
@@ -7,7 +9,6 @@ import com.rolex.discovery.util.Constants;
 import com.rolex.rpc.codec.MsgDecoder;
 import com.rolex.rpc.codec.MsgEncoder;
 import com.rolex.rpc.handler.NettyClientHandler;
-import com.rolex.discovery.routing.Host;
 import com.rolex.rpc.rebalance.Strategy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -20,7 +21,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
@@ -57,7 +57,8 @@ public class ConnectionManager {
     }
 
     public void connect() throws InterruptedException {
-        Host host = serverSelectorStrategy.select();
+        Map<Host, RoutingInfo> map = clientHandler.getRoutingCache().getRoutingInfo().get(NodeType.server);
+        Host host = serverSelectorStrategy.select(Lists.newArrayList(map.keySet()));
         log.info("starting connect to server {}", host);
         start(host);
     }
@@ -65,14 +66,15 @@ public class ConnectionManager {
     public void reconnect() throws InterruptedException {
         Thread.sleep(Constants.BROADCAST_TIME_MILLIS * 3 + 1000);
         waitingForServerOnline();
-        Host host = serverSelectorStrategy.select();
+        Map<Host, RoutingInfo> map = clientHandler.getRoutingCache().getRoutingInfo().get(NodeType.server);
+        Host host = serverSelectorStrategy.select(Lists.newArrayList(map.keySet()));
         log.info("断线重连 {}", host);
         start(host);
     }
 
     private void waitingForServerOnline() throws InterruptedException {
         while (!connected) {
-            Map<NodeType, Map<Host, RoutingInfo>> registry = RoutingCache.getRoutingInfo();
+            Map<NodeType, Map<Host, RoutingInfo>> registry = clientHandler.getRoutingCache().getRoutingInfo();
             Map<Host, RoutingInfo> serverInfo = registry.get(NodeType.server);
             if (serverInfo == null || serverInfo.isEmpty()) {
                 log.info("等待server上线");
@@ -89,7 +91,6 @@ public class ConnectionManager {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
-                .remoteAddress(new InetSocketAddress(host.getHost(), host.getPort()))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
@@ -100,8 +101,9 @@ public class ConnectionManager {
                         pipeline.addLast("client-handler", clientHandler);
                     }
                 });
-        ChannelFuture future = bootstrap.connect().sync();
-        future.channel().closeFuture().sync();
+
+        ChannelFuture future = bootstrap.connect(host.getHost(), host.getPort()).sync();
+        future.channel().closeFuture();
     }
 
 }

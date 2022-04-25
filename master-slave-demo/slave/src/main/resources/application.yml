@@ -13,7 +13,7 @@ spring:
 server:
   port: 8001
 tcp:
-  port: 0
+  port: 12345
 node:
   id: 2
   type: client

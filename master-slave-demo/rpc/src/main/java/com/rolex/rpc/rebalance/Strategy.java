@@ -2,6 +2,8 @@ package com.rolex.rpc.rebalance;
 
 import com.rolex.discovery.routing.Host;
 
+import java.util.List;
+
 /**
  * <P>
  *
@@ -11,5 +13,5 @@ import com.rolex.discovery.routing.Host;
  * @since 2022
  */
 public interface Strategy {
-    Host select();
+    Host select(List<Host> servers);
 }

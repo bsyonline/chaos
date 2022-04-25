@@ -1,6 +1,6 @@
 package com.rolex.master.manager;
 
-import com.rolex.master.manager.loadbalance.RandomLoadBalance;
+import com.rolex.discovery.routing.Host;
 import io.netty.channel.Channel;
 import org.springframework.stereotype.Component;
 
@@ -17,26 +17,25 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class DefaultExecutorManager implements ExecutorManager {
-    private static Map<String, Channel> channels = new ConcurrentHashMap<>();
+    private static Map<Host, Channel> channels = new ConcurrentHashMap<>();
 
-    public static Channel getChannel(String name) {
-        return channels.get(name);
+    public static Channel getChannel(Host host) {
+        return channels.get(host);
     }
 
     @Override
-    public Map<String, Channel> getChannels() {
+    public Map<Host, Channel> getChannels() {
         return channels;
     }
 
     @Override
-    public void addChannel(String name, Channel channel) {
-        channels.put(name, channel);
+    public void addChannel(Host host, Channel channel) {
+        channels.put(host, channel);
     }
 
     @Override
-    public void removeChannel(String name) {
+    public void removeChannel(Host name) {
         channels.remove(name);
     }
-
 
 }

@@ -3,6 +3,10 @@
  */
 package com.rolex.rpc;
 
+import com.rolex.discovery.routing.LocalRoutingInfo;
+import com.rolex.discovery.routing.NodeState;
+import com.rolex.discovery.routing.NodeType;
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.rpc.codec.MsgDecoder;
 import com.rolex.rpc.codec.MsgEncoder;
 import com.rolex.rpc.handler.NettyServerHandler;
@@ -40,11 +44,15 @@ public class NettyServer {
         this.port = port;
     }
 
+    public void setRoutingCache(RoutingCache routingCache) {
+        this.serverHandler.setRoutingCache(routingCache);
+    }
+
     /**
      * register processor
      *
      * @param commandType command type
-     * @param processor processor
+     * @param processor   processor
      */
     public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
@@ -54,8 +62,8 @@ public class NettyServer {
      * register processor
      *
      * @param commandType command type
-     * @param processor processor
-     * @param executor thread executor
+     * @param processor   processor
+     * @param executor    thread executor
      */
     public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         this.serverHandler.registerProcessor(commandType, processor, executor);
@@ -92,10 +100,17 @@ public class NettyServer {
 
             ChannelFuture future = bootstrap.bind().sync();
             log.info("server started on port {}", port);
-            future.channel().closeFuture().sync();
+            future.channel().closeFuture();
+//            setServerLocalRoutingInfo();
         } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+//            bossGroup.shutdownGracefully();
+//            workerGroup.shutdownGracefully();
         }
+    }
+
+    private void setServerLocalRoutingInfo() {
+        routingCache.setLocalRoutingInfo("host", host);
+        routingCache.setLocalRoutingInfo("port", port);
+        routingCache.setLocalRoutingInfo("state", NodeState.ready);
     }
 }
