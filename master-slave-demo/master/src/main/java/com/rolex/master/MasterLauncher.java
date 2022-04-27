@@ -5,6 +5,7 @@ import com.rolex.discovery.util.NetUtils;
 import com.rolex.master.manager.ExecutorManager;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyServer;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.impl.PingProcessor;
 import com.rolex.rpc.processor.impl.ReceiveAckProcessor;
 import com.rolex.rpc.processor.impl.ReceiveNackProcessor;
@@ -42,9 +43,9 @@ public class MasterLauncher implements CommandLineRunner{
     @Override
     public void run(String... args) throws Exception {
         NettyServer nettyServer = new NettyServer(NetUtils.getSiteIP(), port);
-        nettyServer.registerProcessor(CommandType.PING, new PingProcessor());
-        nettyServer.registerProcessor(CommandType.ACK, new ReceiveAckProcessor());
-        nettyServer.registerProcessor(CommandType.NACK, new ReceiveNackProcessor());
+        nettyServer.registerProcessor(MsgProto.CommandType.PING, new PingProcessor());
+        nettyServer.registerProcessor(MsgProto.CommandType.ACK, new ReceiveAckProcessor());
+        nettyServer.registerProcessor(MsgProto.CommandType.NACK, new ReceiveNackProcessor());
         nettyServer.executorManager(executorManager);
         nettyServer.setRoutingCache(routingCache);
         nettyServer.start();

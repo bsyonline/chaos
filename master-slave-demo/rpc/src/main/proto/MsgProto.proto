@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package com.rolex.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.rolex.rpc.model.proto";
+option java_outer_classname = "MsgProtoWrapper";
+
+//message Msg {
+//  int32 length = 1;
+//  MsgBody body = 2;
+//}
+
+message MsgProto {
+  int64 jobId = 1;
+  enum CommandType{
+    PING = 0;
+    PONG = 1;
+    ACK = 2;
+    NACK = 3;
+    JOB_REQUEST = 4;
+  }
+  CommandType type = 2;
+}

@@ -7,6 +7,7 @@ import com.rolex.rpc.exception.RpcTimeoutException;
 import com.rolex.rpc.future.ResponseFuture;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -36,7 +37,8 @@ public class DispatcherServiceImpl implements DispatcherService {
         if (channel != null) {
             Long jobId = count++;
             log.info("send before {}", jobId);
-            send(channel, jobId);
+//            send(channel, jobId);
+            send4proto(channel, jobId);
             log.info("send after {}", jobId);
         }
     }
@@ -47,6 +49,21 @@ public class DispatcherServiceImpl implements DispatcherService {
         request.setJobId(jobId);
         byte[] content = SerializationUtils.serialize(request, MsgBody.class);
         Msg msg = new Msg(content.length, content);
+        ChannelFuture future = channel.writeAndFlush(msg).await();
+        if (future.isSuccess()) {
+            log.debug("send command : {} , to : {} successfully.", msg, channel.remoteAddress().toString());
+        } else {
+            String error = String.format("send command : %s , to :%s failed", msg, channel.remoteAddress().toString());
+            log.error(error, future.cause());
+            throw new RuntimeException(error);
+        }
+    }
+
+    private void send4proto(Channel channel, Long jobId) throws InterruptedException {
+        MsgProto msg = MsgProto.newBuilder()
+                .setType(MsgProto.CommandType.JOB_REQUEST)
+                .setJobId(jobId)
+                .build();
         ChannelFuture future = channel.writeAndFlush(msg).await();
         if (future.isSuccess()) {
             log.debug("send command : {} , to : {} successfully.", msg, channel.remoteAddress().toString());

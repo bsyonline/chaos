@@ -3,14 +3,12 @@
  */
 package com.rolex.rpc;
 
-import com.rolex.discovery.routing.LocalRoutingInfo;
-import com.rolex.discovery.routing.NodeState;
-import com.rolex.discovery.routing.NodeType;
 import com.rolex.discovery.routing.RoutingCache;
-import com.rolex.rpc.codec.MsgDecoder;
-import com.rolex.rpc.codec.MsgEncoder;
 import com.rolex.rpc.handler.NettyServerHandler;
+import com.rolex.rpc.handler.ProtoNettyServerHandler;
 import com.rolex.rpc.model.Manager;
+import com.rolex.rpc.model.Msg;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.NettyProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -20,6 +18,10 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
+import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
+import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +38,8 @@ public class NettyServer {
     private final ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
     String host;
     int port;
-    private final NettyServerHandler serverHandler = new NettyServerHandler(this);
+//    private final NettyServerHandler serverHandler = new NettyServerHandler(this);
+    private final ProtoNettyServerHandler serverHandler = new ProtoNettyServerHandler(this);
     Manager manager;
 
     public NettyServer(String host, int port) {
@@ -54,7 +57,7 @@ public class NettyServer {
      * @param commandType command type
      * @param processor   processor
      */
-    public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
+    public void registerProcessor(final MsgProto.CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
     }
 
@@ -65,7 +68,7 @@ public class NettyServer {
      * @param processor   processor
      * @param executor    thread executor
      */
-    public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
+    public void registerProcessor(final MsgProto.CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         this.serverHandler.registerProcessor(commandType, processor, executor);
     }
 
@@ -91,8 +94,12 @@ public class NettyServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast("idle-state-handler", new IdleStateHandler(0, 0, 16));
-                            pipeline.addLast("decoder", new MsgDecoder());
-                            pipeline.addLast("encoder", new MsgEncoder());
+//                            pipeline.addLast("decoder", new MsgDecoder());
+//                            pipeline.addLast("encoder", new MsgEncoder());
+                            pipeline.addLast(new ProtobufVarint32FrameDecoder());
+                            pipeline.addLast(new ProtobufDecoder(MsgProto.getDefaultInstance()));
+                            pipeline.addLast(new ProtobufVarint32LengthFieldPrepender());
+                            pipeline.addLast(new ProtobufEncoder());
                             pipeline.addLast("server-handler", serverHandler);
                         }
                     })

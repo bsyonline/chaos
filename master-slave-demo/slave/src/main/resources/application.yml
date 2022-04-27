@@ -11,9 +11,8 @@ spring:
         max-active: -1
         min-idle: 1
 server:
-  port: 8001
-tcp:
-  port: 12345
+  port: 8002
+
 node:
   id: 2
   type: client

@@ -17,17 +17,21 @@
 package com.rolex.rpc.processor;
 
 import com.rolex.rpc.model.MsgBody;
+import com.rolex.rpc.model.proto.MsgProto;
 import io.netty.channel.Channel;
 
 /**
- *  netty request processor
+ * netty request processor
  */
 public interface NettyProcessor {
 
     /**
-     *  process logic
+     * process logic
+     *
      * @param channel
      * @param msg
      */
     void process(final Channel channel, final MsgBody msg) throws InterruptedException;
+
+    void process4proto(final Channel channel, final MsgProto msg) throws InterruptedException;
 }

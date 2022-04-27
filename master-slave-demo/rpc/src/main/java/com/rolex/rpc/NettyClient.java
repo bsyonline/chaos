@@ -4,10 +4,11 @@
 package com.rolex.rpc;
 
 import com.rolex.discovery.routing.RoutingCache;
-import com.rolex.rpc.handler.NettyClientHandler;
+import com.rolex.rpc.handler.ProtoNettyClientHandler;
 import com.rolex.rpc.manager.ConnectionManager;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.NettyProcessor;
-import com.rolex.rpc.rebalance.Strategy;
+import com.rolex.rpc.rebalance.RebalanceStrategy;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutorService;
@@ -18,10 +19,11 @@ import java.util.concurrent.ExecutorService;
  */
 @Slf4j
 public class NettyClient {
-    private final NettyClientHandler clientHandler = new NettyClientHandler();
+    private final ProtoNettyClientHandler clientHandler = new ProtoNettyClientHandler();
+//    private final NettyClientHandler clientHandler = new NettyClientHandler();
 
-    public void setServerSelectorStrategy(Strategy serverSelectorStrategy) {
-        this.clientHandler.setServerSelectorStrategy(serverSelectorStrategy);
+    public void setServerSelectorStrategy(RebalanceStrategy serverSelectorRebalanceStrategy) {
+        this.clientHandler.setServerSelectorStrategy(serverSelectorRebalanceStrategy);
     }
 
     public void setRoutingCache(RoutingCache routingCache) {
@@ -34,7 +36,7 @@ public class NettyClient {
      * @param commandType command type
      * @param processor   processor
      */
-    public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
+    public void registerProcessor(final MsgProto.CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
     }
 
@@ -45,7 +47,7 @@ public class NettyClient {
      * @param processor   processor
      * @param executor    thread executor
      */
-    public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
+    public void registerProcessor(final MsgProto.CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         this.clientHandler.registerProcessor(commandType, processor, executor);
     }
 

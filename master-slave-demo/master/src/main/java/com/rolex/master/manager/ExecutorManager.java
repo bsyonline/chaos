@@ -1,7 +1,7 @@
 package com.rolex.master.manager;
 
 import com.rolex.discovery.routing.Host;
-import com.rolex.master.manager.loadbalance.LoadBalancer;
+import com.rolex.rpc.loadbalance.LoadBalancer;
 import com.rolex.rpc.model.Manager;
 import io.netty.channel.Channel;
 

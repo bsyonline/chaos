@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.util.SerializationUtils;
 import com.rolex.slave.exec.MainReactor;
@@ -34,6 +35,20 @@ public class JobAcceptProcessor implements NettyProcessor {
         }
     }
 
+    @Override
+    public void process4proto(Channel channel, MsgProto msg) throws InterruptedException {
+        log.info("收到派发的作业 {} 准备接收", msg);
+        boolean accept = MainReactor.accept("" + msg.getJobId());
+        log.info("收到派发的作业 {} 接收状态", msg, accept);
+        if (accept) {
+            log.info("收到派发的作业 {} 并返回ack", msg);
+            ack4proto(channel, msg);
+        } else {
+            log.info("收到派发的作业 {} ，当前任务积压，拒绝接收新任务并返回nack", msg);
+            nack4proto(channel, msg);
+        }
+    }
+
     private void ack(Channel channel, MsgBody msgBody) throws InterruptedException {
         MsgBody request = new MsgBody();
         request.setType(CommandType.ACK);
@@ -43,6 +58,14 @@ public class JobAcceptProcessor implements NettyProcessor {
         channel.writeAndFlush(msg).sync();
     }
 
+    private void ack4proto(Channel channel, MsgProto msgBody) throws InterruptedException {
+        MsgProto request = MsgProto.newBuilder()
+                .setType(MsgProto.CommandType.ACK)
+                .setJobId(msgBody.getJobId())
+                .build();
+        channel.writeAndFlush(request).sync();
+    }
+
     private void nack(Channel channel, MsgBody msgBody) throws InterruptedException {
         MsgBody request = new MsgBody();
         request.setType(CommandType.NACK);
@@ -50,5 +73,13 @@ public class JobAcceptProcessor implements NettyProcessor {
         byte[] content = SerializationUtils.serialize(request, MsgBody.class);
         Msg msg = new Msg(content.length, content);
         channel.writeAndFlush(msg).sync();
+    }
+
+    private void nack4proto(Channel channel, MsgProto msgBody) throws InterruptedException {
+        MsgProto request = MsgProto.newBuilder()
+                .setType(MsgProto.CommandType.NACK)
+                .setJobId(msgBody.getJobId())
+                .build();
+        channel.writeAndFlush(request).sync();
     }
 }

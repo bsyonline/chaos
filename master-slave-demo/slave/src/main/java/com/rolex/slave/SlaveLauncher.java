@@ -3,8 +3,10 @@ package com.rolex.slave;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyClient;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.impl.PongProcessor;
-import com.rolex.rpc.rebalance.strategy.RandomSelector;
+import com.rolex.rpc.rebalance.RebalanceStrategy;
+import com.rolex.rpc.rebalance.strategy.RandomRebalanceStrategy;
 import com.rolex.slave.processor.JobAcceptProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -30,13 +32,15 @@ public class SlaveLauncher implements CommandLineRunner {
 
     @Autowired
     RoutingCache routingCache;
+    @Autowired
+    RebalanceStrategy rebalanceStrategy;
 
     @Override
     public void run(String... args) throws Exception {
         NettyClient nettyClient = new NettyClient();
-        nettyClient.registerProcessor(CommandType.PONG, new PongProcessor());
-        nettyClient.registerProcessor(CommandType.JOB_REQUEST, new JobAcceptProcessor());
-        nettyClient.setServerSelectorStrategy(new RandomSelector());
+        nettyClient.registerProcessor(MsgProto.CommandType.PONG, new PongProcessor());
+        nettyClient.registerProcessor(MsgProto.CommandType.JOB_REQUEST, new JobAcceptProcessor());
+        nettyClient.setServerSelectorStrategy(rebalanceStrategy);
         nettyClient.setRoutingCache(routingCache);
         nettyClient.start();
     }

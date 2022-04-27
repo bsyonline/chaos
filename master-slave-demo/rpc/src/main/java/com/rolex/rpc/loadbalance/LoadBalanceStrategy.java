@@ -1,6 +1,7 @@
-package com.rolex.master.manager.loadbalance;
+package com.rolex.rpc.loadbalance;
 
 import com.rolex.discovery.routing.Host;
+import com.rolex.discovery.routing.RoutingInfo;
 
 import java.util.Collection;
 
@@ -13,5 +14,5 @@ import java.util.Collection;
  * @since 2022
  */
 public interface LoadBalanceStrategy {
-    Host select(Collection<Host> hosts);
+    Host select(Collection<RoutingInfo> routings);
 }

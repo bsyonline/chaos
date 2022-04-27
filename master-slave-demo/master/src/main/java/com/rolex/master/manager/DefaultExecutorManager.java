@@ -1,8 +1,8 @@
 package com.rolex.master.manager;
 
 import com.rolex.discovery.routing.Host;
-import com.rolex.master.manager.loadbalance.LoadBalanceStrategy;
-import com.rolex.master.manager.loadbalance.LoadBalancer;
+import com.rolex.rpc.loadbalance.LoadBalanceStrategy;
+import com.rolex.rpc.loadbalance.LoadBalancer;
 import io.netty.channel.Channel;
 
 import java.util.Map;

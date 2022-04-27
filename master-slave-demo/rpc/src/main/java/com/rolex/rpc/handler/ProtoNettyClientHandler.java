@@ -5,17 +5,19 @@ package com.rolex.rpc.handler;
 
 import com.rolex.discovery.routing.NodeState;
 import com.rolex.discovery.routing.RoutingCache;
+import com.rolex.discovery.util.Pair;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.manager.ConnectionManager;
 import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.MsgBody;
+import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.rebalance.RebalanceStrategy;
-import com.rolex.discovery.util.Pair;
 import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -32,10 +34,11 @@ import java.util.concurrent.RejectedExecutionException;
  */
 @Slf4j
 @ChannelHandler.Sharable
-public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
+public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProto> {
 
     private final ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
-    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<MsgProto.CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
+//    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
     private RebalanceStrategy serverSelectorRebalanceStrategy;
     private RoutingCache routingCache;
 
@@ -55,11 +58,11 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
         this.serverSelectorRebalanceStrategy = serverSelectorRebalanceStrategy;
     }
 
-    public void registerProcessor(final CommandType commandType, final NettyProcessor processor) {
+    public void registerProcessor(final MsgProto.CommandType commandType, final NettyProcessor processor) {
         this.registerProcessor(commandType, processor, null);
     }
 
-    public void registerProcessor(final CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
+    public void registerProcessor(final MsgProto.CommandType commandType, final NettyProcessor processor, final ExecutorService executor) {
         ExecutorService executorRef = executor;
         if (executorRef == null) {
             executorRef = defaultExecutor;
@@ -70,8 +73,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         log.info("master {} offline and reconnect", ctx.channel().remoteAddress().toString());
-//        new ConnectionManager(this).reconnect();
-
+        new ConnectionManager(this).reconnect();
     }
 
     @Override
@@ -80,11 +82,8 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Msg msg) throws Exception {
-        byte[] content = msg.getContent();
-        // 反序列化
-        MsgBody msgBody = (MsgBody) SerializationUtils.deserialize(content, MsgBody.class);
-        processReceived(ctx.channel(), msgBody);
+    protected void channelRead0(ChannelHandlerContext ctx, MsgProto msg) throws Exception {
+        processReceived(ctx.channel(), msg);
     }
 
     /**
@@ -93,13 +92,13 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
      * @param channel channel
      * @param msg     message
      */
-    private void processReceived(final Channel channel, final MsgBody msg) {
-        final CommandType commandType = msg.getType();
+    private void processReceived(final Channel channel, final MsgProto msg) {
+        MsgProto.CommandType commandType = msg.getType();
         final Pair<NettyProcessor, ExecutorService> pair = processors.get(commandType);
         if (pair != null) {
             Runnable r = () -> {
                 try {
-                    pair._1().process(channel, msg);
+                    pair._1().process4proto(channel, msg);
                 } catch (Exception ex) {
                     log.error("process msg {} error", msg, ex);
                 }
@@ -141,10 +140,9 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
     }
 
     private void heartbeat(ChannelHandlerContext ctx) {
-        MsgBody request = new MsgBody();
-        request.setType(CommandType.PING);
-        byte[] content = SerializationUtils.serialize(request, MsgBody.class);
-        Msg msg = new Msg(content.length, content);
+        MsgProto msg = MsgProto.newBuilder()
+                .setType(MsgProto.CommandType.PING)
+                .build();
         ctx.writeAndFlush(msg);
     }
 

@@ -1,9 +1,13 @@
-package com.rolex.master.manager.loadbalance;
+package com.rolex.rpc.loadbalance;
 
 import com.rolex.discovery.routing.Host;
+import com.rolex.discovery.routing.NodeType;
 import com.rolex.discovery.routing.RoutingCache;
+import com.rolex.discovery.routing.RoutingInfo;
 import io.netty.channel.Channel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,8 +33,22 @@ public class MasterLoadBalancer implements LoadBalancer {
         if (channelMap == null) {
             return null;
         }
+        List<RoutingInfo> routings = new ArrayList<>();
+        for (Host host : channelMap.keySet()) {
+            routings.add(routingCache.getRoutingInfo().get(NodeType.client).get(host));
+        }
 
-        Host host = loadBalanceStrategy.select(channelMap.keySet());
-        return channelMap.get(host);
+        Host host = loadBalanceStrategy.select(routings);
+        if (host == null) {
+            return null;
+        }
+        Channel channel = channelMap.get(host);
+        if (channel == null) {
+            return null;
+        }
+        if (!channel.isActive()) {
+            return null;
+        }
+        return channel;
     }
 }

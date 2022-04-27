@@ -1,4 +1,4 @@
-package com.rolex.master.manager.loadbalance;
+package com.rolex.rpc.loadbalance;
 
 /**
  * <P>
