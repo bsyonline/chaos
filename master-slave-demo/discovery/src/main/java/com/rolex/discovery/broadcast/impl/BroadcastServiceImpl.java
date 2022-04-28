@@ -13,6 +13,7 @@ import com.rolex.discovery.util.OShiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -50,7 +51,6 @@ public class BroadcastServiceImpl implements BroadcastService {
                 .metrics(Metrics.of(OShiUtils.getCpuLoad(), OShiUtils.getMemoryLoad()))
                 .build();
         String broadcast = JSONObject.toJSONString(routingInfo);
-
         log.info("广播节点信息：{}", broadcast);
         pubService.pub(broadcast);
     }

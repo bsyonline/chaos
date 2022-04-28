@@ -1,8 +1,10 @@
 package com.rolex.discovery.routing;
 
+import com.alibaba.fastjson.JSONObject;
+import com.rolex.discovery.observer.Observer;
 import com.rolex.discovery.observer.RoutingInfoObserver;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,10 +23,10 @@ import java.util.Set;
 public class RoutingInfo {
     List<RoutingInfoObserver> observers = new ArrayList<>();
 
-    RoutingInfo() {
+    public RoutingInfo() {
     }
 
-    RoutingInfo(Host host, NodeType type, long timestamp, Set<Host> connected, Metrics metrics) {
+    public RoutingInfo(Host host, NodeType type, long timestamp, Set<Host> connected, Metrics metrics) {
         this.host = host;
         this.type = type;
         this.timestamp = timestamp;
@@ -39,7 +41,6 @@ public class RoutingInfo {
     Set<Host> connected = new HashSet<>();
     Metrics metrics;
 
-
     public static Builder builder() {
         return new Builder();
     }
@@ -49,6 +50,7 @@ public class RoutingInfo {
         NodeType type;
         Set<Host> connected = new HashSet<>();
         Metrics metrics;
+        List<RoutingInfoObserver> observers;
 
         public RoutingInfo.Builder host(Host host) {
             this.host = host;
@@ -83,7 +85,7 @@ public class RoutingInfo {
         observers.remove(observer);
     }
 
-    public void routingChange() {
-        observers.forEach(o -> o.onChange(this));
+    public void routingChange(ApplicationEventPublisher applicationEventPublisher,RoutingInfo changed) {
+        observers.forEach(o -> o.onChange(applicationEventPublisher, this, changed));
     }
 }

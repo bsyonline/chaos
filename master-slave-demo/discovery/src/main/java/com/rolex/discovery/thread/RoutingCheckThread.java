@@ -5,10 +5,13 @@ import com.rolex.discovery.routing.NodeType;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.routing.RoutingInfo;
 import com.rolex.discovery.util.Constants;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,69 +19,93 @@ import java.util.Set;
 public class RoutingCheckThread extends Thread {
     int count = 0;
     RoutingCache routingCache;
+    ApplicationEventPublisher applicationEventPublisher;
 
-    public RoutingCheckThread(RoutingCache routingCache) {
+    public RoutingCheckThread(ApplicationEventPublisher applicationEventPublisher, RoutingCache routingCache) {
         this.routingCache = routingCache;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
-    @SneakyThrows
     @Override
     public void run() {
         while (true) {
-            Map<NodeType, Map<Host, RoutingInfo>> registry = routingCache.getRoutingInfo();
-            if (count % 10 == 0) {
-                log.info("{} 路由信息为：{}", routingCache.getRoutingInfo().hashCode(), registry);
-                log.info("connect信息为：{}", routingCache.getConnects());
-                count = 0;
-            }
-            count++;
+            try {
+                Map<NodeType, Map<Host, RoutingInfo>> registry = routingCache.getRoutingInfo();
+                if (count % 10 == 0) {
+                    log.info("{} 路由信息为：{}", routingCache.getRoutingInfo().hashCode(), registry);
+                    log.info("connect信息为：{}", routingCache.getConnects());
+                    count = 0;
+                }
+                count++;
 
-            Set<Host> prepareCleanClient = new HashSet<>();
-            Set<Host> prepareCleanServer = new HashSet<>();
-            for (Map.Entry<NodeType, Map<Host, RoutingInfo>> kv : registry.entrySet()) {
-                NodeType type = kv.getKey();
-                Map<Host, RoutingInfo> map = kv.getValue();
-                switch (type) {
-                    case server:
-                        for (Map.Entry<Host, RoutingInfo> skv : map.entrySet()) {
-                            Host host = skv.getKey();
-                            long timestamp = skv.getValue().getTimestamp();
-                            if (timestamp < System.currentTimeMillis() - maxBroadcastTime()) {
-                                prepareCleanServer.add(host);
-
+                Set<Host> prepareCleanClient = new HashSet<>();
+                Set<Host> prepareCleanServer = new HashSet<>();
+                for (Map.Entry<NodeType, Map<Host, RoutingInfo>> kv : registry.entrySet()) {
+                    NodeType type = kv.getKey();
+                    Map<Host, RoutingInfo> map = kv.getValue();
+                    switch (type) {
+                        case server:
+                            for (Map.Entry<Host, RoutingInfo> skv : map.entrySet()) {
+                                Host host = skv.getKey();
+                                long timestamp = skv.getValue().getTimestamp();
+                                if (timestamp < System.currentTimeMillis() - maxBroadcastTime()) {
+                                    prepareCleanServer.add(host);
+                                }
                             }
-                        }
-                        break;
-                    case client:
-                        for (Map.Entry<Host, RoutingInfo> skv : map.entrySet()) {
-                            Host host = skv.getKey();
-                            long timestamp = skv.getValue().getTimestamp();
-                            if (timestamp < System.currentTimeMillis() - maxBroadcastTime()) {
-                                prepareCleanClient.add(host);
+                            break;
+                        case client:
+                            for (Map.Entry<Host, RoutingInfo> skv : map.entrySet()) {
+                                Host host = skv.getKey();
+                                long timestamp = skv.getValue().getTimestamp();
+                                if (timestamp < System.currentTimeMillis() - maxBroadcastTime()) {
+                                    prepareCleanClient.add(host);
+                                }
                             }
+                            break;
+                    }
+                }
+                List<RoutingInfo> removed = new ArrayList<>();
+                if (!prepareCleanClient.isEmpty()) {
+                    for (Host host : prepareCleanClient) {
+                        RoutingInfo removedRoutingInfo = registry.get(NodeType.client).remove(host);
+                        removed.add(removedRoutingInfo);
+                    }
+                }
+                if (!prepareCleanServer.isEmpty()) {
+                    for (Host host : prepareCleanServer) {
+                        RoutingInfo removedRoutingInfo = registry.get(NodeType.server).remove(host);
+                        removed.add(removedRoutingInfo);
+                    }
+                }
+                if (!removed.isEmpty()) {
+                    for (RoutingInfo routingInfo : removed) {
+                        Map<Host, RoutingInfo> clientMap = registry.get(NodeType.client);
+                        if (clientMap != null && !clientMap.isEmpty() && clientMap.values() != null && !clientMap.values().isEmpty()) {
+                            clientMap.values().forEach(r -> r.routingChange(applicationEventPublisher, routingInfo));
                         }
-                        break;
+                        Map<Host, RoutingInfo> serverMap = registry.get(NodeType.server);
+                        if (serverMap != null && !serverMap.isEmpty() && serverMap.values() != null && !serverMap.values().isEmpty()) {
+                            serverMap.values().forEach(r -> r.routingChange(applicationEventPublisher, routingInfo));
+                        }
+                    }
                 }
+                Thread.sleep(1000);
+            } catch (Exception e) {
+                log.error("RoutingCheckThread process failed", e);
             }
-            if (!prepareCleanClient.isEmpty()) {
-                for (Host host : prepareCleanClient) {
-                    registry.get(NodeType.client).get(host).routingChange();
-                    registry.get(NodeType.client).remove(host);
-                }
-
-            }
-            if (!prepareCleanServer.isEmpty()) {
-                for (Host host : prepareCleanClient) {
-                    registry.get(NodeType.server).get(host).routingChange();
-                    registry.get(NodeType.server).remove(host);
-                }
-
-            }
-            Thread.sleep(1000);
         }
     }
 
-    public long maxBroadcastTime() {
+    private List<RoutingInfo> clearCache(Map<NodeType, Map<Host, RoutingInfo>> registry, Set<Host> prepareCleanClient, NodeType client) {
+        List<RoutingInfo> removed = new ArrayList<>();
+        for (Host host : prepareCleanClient) {
+            RoutingInfo removedRoutingInfo = registry.get(client).remove(host);
+            removed.add(removedRoutingInfo);
+        }
+        return removed;
+    }
+
+    private long maxBroadcastTime() {
         return Constants.BROADCAST_TIME_MILLIS * 3 + 1000;
     }
 }

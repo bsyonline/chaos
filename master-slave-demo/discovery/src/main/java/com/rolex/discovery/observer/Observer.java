@@ -1,6 +1,7 @@
 package com.rolex.discovery.observer;
 
 import com.rolex.discovery.routing.RoutingInfo;
+import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * <P>
@@ -11,5 +12,5 @@ import com.rolex.discovery.routing.RoutingInfo;
  * @since 2022
  */
 public interface Observer {
-    void onChange(RoutingInfo routingInfo);
+    void onChange(ApplicationEventPublisher applicationEventPublisher, RoutingInfo current, RoutingInfo changed);
 }

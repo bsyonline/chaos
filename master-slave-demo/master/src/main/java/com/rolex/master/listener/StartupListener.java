@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -28,12 +29,13 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     private BroadcastService broadcastService;
     @Autowired
     RoutingCache routingCache;
-
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         new BroadcastThread(broadcastService).start();
-        new RoutingCheckThread(routingCache).start();
+        new RoutingCheckThread(applicationEventPublisher, routingCache).start();
     }
 
 }

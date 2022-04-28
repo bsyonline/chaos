@@ -9,6 +9,7 @@ import com.rolex.slave.exec.SubReactorThread;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -29,13 +30,15 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     BroadcastService broadcastService;
     @Autowired
     RoutingCache routingCache;
+    @Autowired
+    ApplicationEventPublisher applicationEventPublisher;
 
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         log.info("=====================onApplicationEvent=======================");
         new BroadcastThread(broadcastService).start();
-        new RoutingCheckThread(routingCache).start();
+        new RoutingCheckThread(applicationEventPublisher, routingCache).start();
         new Thread(new SubReactorThread(Reactor.taskBufferQueue)).start();
     }
 
