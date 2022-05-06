@@ -41,6 +41,15 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
 //    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
     private RebalanceStrategy serverSelectorRebalanceStrategy;
     private RoutingCache routingCache;
+    private String executorType;
+
+    public void setExecutorType(String executorType) {
+        this.executorType = executorType;
+    }
+
+    public String getExecutorType() {
+        return executorType;
+    }
 
     public RoutingCache getRoutingCache() {
         return routingCache;
@@ -71,14 +80,34 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
     }
 
     @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("========channelRegistered");
+    }
+
+    @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        log.info("master {} offline and reconnect", ctx.channel().remoteAddress().toString());
+        log.info("server {} offline and reconnect", ctx.channel().remoteAddress().toString());
         new ConnectionManager(this).reconnect();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         setClientLocalRoutingInfo(ctx);
+        registry(ctx);
+    }
+
+    private void registry(ChannelHandlerContext ctx) throws InterruptedException {
+        String executorType = getExecutorType();
+        SocketChannel socketChannel = (SocketChannel) ctx.channel();
+        int localPort = socketChannel.localAddress().getPort();
+        String localAddress = socketChannel.localAddress().getAddress().getHostAddress();
+        MsgProto registry = MsgProto.newBuilder()
+                .setType(MsgProto.CommandType.EXECUTOR_REGISTRY)
+                .setExecutorType(MsgProto.ExecutorType.valueOf(executorType))
+                .setHost(localAddress)
+                .setPort(localPort)
+                .build();
+        ctx.channel().writeAndFlush(registry).sync();
     }
 
     @Override

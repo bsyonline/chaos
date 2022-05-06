@@ -17,6 +17,8 @@ private static final long serialVersionUID = 0L;
   }
   private MsgProto() {
     type_ = 0;
+    executorType_ = 0;
+    host_ = "";
   }
 
   @java.lang.Override
@@ -58,6 +60,23 @@ private static final long serialVersionUID = 0L;
             int rawValue = input.readEnum();
 
             type_ = rawValue;
+            break;
+          }
+          case 24: {
+            int rawValue = input.readEnum();
+
+            executorType_ = rawValue;
+            break;
+          }
+          case 34: {
+            java.lang.String s = input.readStringRequireUtf8();
+
+            host_ = s;
+            break;
+          }
+          case 40: {
+
+            port_ = input.readInt32();
             break;
           }
           default: {
@@ -117,6 +136,10 @@ private static final long serialVersionUID = 0L;
      * <code>JOB_REQUEST = 4;</code>
      */
     JOB_REQUEST(4),
+    /**
+     * <code>EXECUTOR_REGISTRY = 5;</code>
+     */
+    EXECUTOR_REGISTRY(5),
     UNRECOGNIZED(-1),
     ;
 
@@ -140,6 +163,10 @@ private static final long serialVersionUID = 0L;
      * <code>JOB_REQUEST = 4;</code>
      */
     public static final int JOB_REQUEST_VALUE = 4;
+    /**
+     * <code>EXECUTOR_REGISTRY = 5;</code>
+     */
+    public static final int EXECUTOR_REGISTRY_VALUE = 5;
 
 
     public final int getNumber() {
@@ -171,6 +198,7 @@ private static final long serialVersionUID = 0L;
         case 2: return ACK;
         case 3: return NACK;
         case 4: return JOB_REQUEST;
+        case 5: return EXECUTOR_REGISTRY;
         default: return null;
       }
     }
@@ -223,6 +251,110 @@ private static final long serialVersionUID = 0L;
     // @@protoc_insertion_point(enum_scope:com.rolex.grpc.MsgProto.CommandType)
   }
 
+  /**
+   * Protobuf enum {@code com.rolex.grpc.MsgProto.ExecutorType}
+   */
+  public enum ExecutorType
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>system = 0;</code>
+     */
+    system(0),
+    /**
+     * <code>tenant = 1;</code>
+     */
+    tenant(1),
+    UNRECOGNIZED(-1),
+    ;
+
+    /**
+     * <code>system = 0;</code>
+     */
+    public static final int system_VALUE = 0;
+    /**
+     * <code>tenant = 1;</code>
+     */
+    public static final int tenant_VALUE = 1;
+
+
+    public final int getNumber() {
+      if (this == UNRECOGNIZED) {
+        throw new java.lang.IllegalArgumentException(
+            "Can't get the number of an unknown enum value.");
+      }
+      return value;
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     * @deprecated Use {@link #forNumber(int)} instead.
+     */
+    @java.lang.Deprecated
+    public static ExecutorType valueOf(int value) {
+      return forNumber(value);
+    }
+
+    /**
+     * @param value The numeric wire value of the corresponding enum entry.
+     * @return The enum associated with the given numeric wire value.
+     */
+    public static ExecutorType forNumber(int value) {
+      switch (value) {
+        case 0: return system;
+        case 1: return tenant;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<ExecutorType>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static final com.google.protobuf.Internal.EnumLiteMap<
+        ExecutorType> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<ExecutorType>() {
+            public ExecutorType findValueByNumber(int number) {
+              return ExecutorType.forNumber(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(ordinal());
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return com.rolex.rpc.model.proto.MsgProto.getDescriptor().getEnumTypes().get(1);
+    }
+
+    private static final ExecutorType[] VALUES = values();
+
+    public static ExecutorType valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      if (desc.getIndex() == -1) {
+        return UNRECOGNIZED;
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int value;
+
+    private ExecutorType(int value) {
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:com.rolex.grpc.MsgProto.ExecutorType)
+  }
+
   public static final int JOBID_FIELD_NUMBER = 1;
   private long jobId_;
   /**
@@ -252,6 +384,71 @@ private static final long serialVersionUID = 0L;
     return result == null ? com.rolex.rpc.model.proto.MsgProto.CommandType.UNRECOGNIZED : result;
   }
 
+  public static final int EXECUTORTYPE_FIELD_NUMBER = 3;
+  private int executorType_;
+  /**
+   * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+   * @return The enum numeric value on the wire for executorType.
+   */
+  public int getExecutorTypeValue() {
+    return executorType_;
+  }
+  /**
+   * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+   * @return The executorType.
+   */
+  public com.rolex.rpc.model.proto.MsgProto.ExecutorType getExecutorType() {
+    @SuppressWarnings("deprecation")
+    com.rolex.rpc.model.proto.MsgProto.ExecutorType result = com.rolex.rpc.model.proto.MsgProto.ExecutorType.valueOf(executorType_);
+    return result == null ? com.rolex.rpc.model.proto.MsgProto.ExecutorType.UNRECOGNIZED : result;
+  }
+
+  public static final int HOST_FIELD_NUMBER = 4;
+  private volatile java.lang.Object host_;
+  /**
+   * <code>string host = 4;</code>
+   * @return The host.
+   */
+  public java.lang.String getHost() {
+    java.lang.Object ref = host_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      host_ = s;
+      return s;
+    }
+  }
+  /**
+   * <code>string host = 4;</code>
+   * @return The bytes for host.
+   */
+  public com.google.protobuf.ByteString
+      getHostBytes() {
+    java.lang.Object ref = host_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      host_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
+  public static final int PORT_FIELD_NUMBER = 5;
+  private int port_;
+  /**
+   * <code>int32 port = 5;</code>
+   * @return The port.
+   */
+  public int getPort() {
+    return port_;
+  }
+
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -272,6 +469,15 @@ private static final long serialVersionUID = 0L;
     if (type_ != com.rolex.rpc.model.proto.MsgProto.CommandType.PING.getNumber()) {
       output.writeEnum(2, type_);
     }
+    if (executorType_ != com.rolex.rpc.model.proto.MsgProto.ExecutorType.system.getNumber()) {
+      output.writeEnum(3, executorType_);
+    }
+    if (!getHostBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 4, host_);
+    }
+    if (port_ != 0) {
+      output.writeInt32(5, port_);
+    }
     unknownFields.writeTo(output);
   }
 
@@ -288,6 +494,17 @@ private static final long serialVersionUID = 0L;
     if (type_ != com.rolex.rpc.model.proto.MsgProto.CommandType.PING.getNumber()) {
       size += com.google.protobuf.CodedOutputStream
         .computeEnumSize(2, type_);
+    }
+    if (executorType_ != com.rolex.rpc.model.proto.MsgProto.ExecutorType.system.getNumber()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeEnumSize(3, executorType_);
+    }
+    if (!getHostBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, host_);
+    }
+    if (port_ != 0) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeInt32Size(5, port_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -307,6 +524,11 @@ private static final long serialVersionUID = 0L;
     if (getJobId()
         != other.getJobId()) return false;
     if (type_ != other.type_) return false;
+    if (executorType_ != other.executorType_) return false;
+    if (!getHost()
+        .equals(other.getHost())) return false;
+    if (getPort()
+        != other.getPort()) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -323,6 +545,12 @@ private static final long serialVersionUID = 0L;
         getJobId());
     hash = (37 * hash) + TYPE_FIELD_NUMBER;
     hash = (53 * hash) + type_;
+    hash = (37 * hash) + EXECUTORTYPE_FIELD_NUMBER;
+    hash = (53 * hash) + executorType_;
+    hash = (37 * hash) + HOST_FIELD_NUMBER;
+    hash = (53 * hash) + getHost().hashCode();
+    hash = (37 * hash) + PORT_FIELD_NUMBER;
+    hash = (53 * hash) + getPort();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -460,6 +688,12 @@ private static final long serialVersionUID = 0L;
 
       type_ = 0;
 
+      executorType_ = 0;
+
+      host_ = "";
+
+      port_ = 0;
+
       return this;
     }
 
@@ -488,6 +722,9 @@ private static final long serialVersionUID = 0L;
       com.rolex.rpc.model.proto.MsgProto result = new com.rolex.rpc.model.proto.MsgProto(this);
       result.jobId_ = jobId_;
       result.type_ = type_;
+      result.executorType_ = executorType_;
+      result.host_ = host_;
+      result.port_ = port_;
       onBuilt();
       return result;
     }
@@ -541,6 +778,16 @@ private static final long serialVersionUID = 0L;
       }
       if (other.type_ != 0) {
         setTypeValue(other.getTypeValue());
+      }
+      if (other.executorType_ != 0) {
+        setExecutorTypeValue(other.getExecutorTypeValue());
+      }
+      if (!other.getHost().isEmpty()) {
+        host_ = other.host_;
+        onChanged();
+      }
+      if (other.getPort() != 0) {
+        setPort(other.getPort());
       }
       this.mergeUnknownFields(other.unknownFields);
       onChanged();
@@ -649,6 +896,164 @@ private static final long serialVersionUID = 0L;
     public Builder clearType() {
       
       type_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private int executorType_ = 0;
+    /**
+     * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+     * @return The enum numeric value on the wire for executorType.
+     */
+    public int getExecutorTypeValue() {
+      return executorType_;
+    }
+    /**
+     * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+     * @param value The enum numeric value on the wire for executorType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setExecutorTypeValue(int value) {
+      executorType_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+     * @return The executorType.
+     */
+    public com.rolex.rpc.model.proto.MsgProto.ExecutorType getExecutorType() {
+      @SuppressWarnings("deprecation")
+      com.rolex.rpc.model.proto.MsgProto.ExecutorType result = com.rolex.rpc.model.proto.MsgProto.ExecutorType.valueOf(executorType_);
+      return result == null ? com.rolex.rpc.model.proto.MsgProto.ExecutorType.UNRECOGNIZED : result;
+    }
+    /**
+     * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+     * @param value The executorType to set.
+     * @return This builder for chaining.
+     */
+    public Builder setExecutorType(com.rolex.rpc.model.proto.MsgProto.ExecutorType value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      
+      executorType_ = value.getNumber();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>.com.rolex.grpc.MsgProto.ExecutorType executorType = 3;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearExecutorType() {
+      
+      executorType_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private java.lang.Object host_ = "";
+    /**
+     * <code>string host = 4;</code>
+     * @return The host.
+     */
+    public java.lang.String getHost() {
+      java.lang.Object ref = host_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        host_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <code>string host = 4;</code>
+     * @return The bytes for host.
+     */
+    public com.google.protobuf.ByteString
+        getHostBytes() {
+      java.lang.Object ref = host_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        host_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <code>string host = 4;</code>
+     * @param value The host to set.
+     * @return This builder for chaining.
+     */
+    public Builder setHost(
+        java.lang.String value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      host_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string host = 4;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearHost() {
+      
+      host_ = getDefaultInstance().getHost();
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>string host = 4;</code>
+     * @param value The bytes for host to set.
+     * @return This builder for chaining.
+     */
+    public Builder setHostBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
+      host_ = value;
+      onChanged();
+      return this;
+    }
+
+    private int port_ ;
+    /**
+     * <code>int32 port = 5;</code>
+     * @return The port.
+     */
+    public int getPort() {
+      return port_;
+    }
+    /**
+     * <code>int32 port = 5;</code>
+     * @param value The port to set.
+     * @return This builder for chaining.
+     */
+    public Builder setPort(int value) {
+      
+      port_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>int32 port = 5;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearPort() {
+      
+      port_ = 0;
       onChanged();
       return this;
     }

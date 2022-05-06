@@ -3,6 +3,9 @@ package com.rolex.master;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.util.NetUtils;
 import com.rolex.master.manager.ExecutorManager;
+import com.rolex.master.processor.RegistryProcessor;
+import com.rolex.master.service.DispatchCoordinator;
+import com.rolex.master.service.ExecutorService;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyServer;
 import com.rolex.rpc.model.proto.MsgProto;
@@ -39,6 +42,10 @@ public class MasterLauncher implements CommandLineRunner{
     ExecutorManager executorManager;
     @Autowired
     RoutingCache routingCache;
+    @Autowired
+    ExecutorService executorService;
+    @Autowired
+    DispatchCoordinator dispatchCoordinator;
 
     @Override
     public void run(String... args) throws Exception {
@@ -46,6 +53,7 @@ public class MasterLauncher implements CommandLineRunner{
         nettyServer.registerProcessor(MsgProto.CommandType.PING, new PingProcessor());
         nettyServer.registerProcessor(MsgProto.CommandType.ACK, new ReceiveAckProcessor());
         nettyServer.registerProcessor(MsgProto.CommandType.NACK, new ReceiveNackProcessor());
+        nettyServer.registerProcessor(MsgProto.CommandType.EXECUTOR_REGISTRY, new RegistryProcessor(executorService, dispatchCoordinator));
         nettyServer.executorManager(executorManager);
         nettyServer.setRoutingCache(routingCache);
         nettyServer.start();

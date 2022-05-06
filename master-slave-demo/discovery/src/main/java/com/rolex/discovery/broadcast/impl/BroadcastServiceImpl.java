@@ -36,6 +36,8 @@ public class BroadcastServiceImpl implements BroadcastService {
     int port;
     @Value("${node.type}")
     String type;
+    @Value("${dts.executor.tenant:null}")
+    String executorType;
     @Resource
     private PubService pubService;
     @Autowired
@@ -47,6 +49,7 @@ public class BroadcastServiceImpl implements BroadcastService {
         RoutingInfo routingInfo = RoutingInfo.builder()
                 .host(Host.of(NetUtils.getSiteIP(), getPort()))
                 .type(NodeType.valueOf(type))
+                .executorType(executorType)
                 .connected(routingCache.getConnects().keySet())
                 .metrics(Metrics.of(OShiUtils.getCpuLoad(), OShiUtils.getMemoryLoad()))
                 .build();

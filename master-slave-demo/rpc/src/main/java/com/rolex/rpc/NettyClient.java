@@ -22,6 +22,10 @@ public class NettyClient {
     private final ProtoNettyClientHandler clientHandler = new ProtoNettyClientHandler();
 //    private final NettyClientHandler clientHandler = new NettyClientHandler();
 
+    public void setExecutorType(String executorType) {
+        this.clientHandler.setExecutorType(executorType);
+    }
+
     public void setServerSelectorStrategy(RebalanceStrategy serverSelectorRebalanceStrategy) {
         this.clientHandler.setServerSelectorStrategy(serverSelectorRebalanceStrategy);
     }

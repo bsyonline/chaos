@@ -9,6 +9,7 @@ import com.rolex.rpc.rebalance.RebalanceStrategy;
 import com.rolex.rpc.rebalance.strategy.RandomRebalanceStrategy;
 import com.rolex.slave.processor.JobAcceptProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,6 +35,8 @@ public class SlaveLauncher implements CommandLineRunner {
     RoutingCache routingCache;
     @Autowired
     RebalanceStrategy rebalanceStrategy;
+    @Value("${dts.executor.tenant:null}")
+    String executorType;
 
     @Override
     public void run(String... args) throws Exception {
@@ -41,6 +44,7 @@ public class SlaveLauncher implements CommandLineRunner {
         nettyClient.registerProcessor(MsgProto.CommandType.PONG, new PongProcessor());
         nettyClient.registerProcessor(MsgProto.CommandType.JOB_REQUEST, new JobAcceptProcessor());
         nettyClient.setServerSelectorStrategy(rebalanceStrategy);
+        nettyClient.setExecutorType(executorType);
         nettyClient.setRoutingCache(routingCache);
         nettyClient.start();
     }

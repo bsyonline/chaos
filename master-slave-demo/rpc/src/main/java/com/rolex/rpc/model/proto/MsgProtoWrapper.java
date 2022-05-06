@@ -28,12 +28,16 @@ public final class MsgProtoWrapper {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016MsgProto.proto\022\016com.rolex.grpc\"\224\001\n\010Msg" +
+      "\n\016MsgProto.proto\022\016com.rolex.grpc\"\254\002\n\010Msg" +
       "Proto\022\r\n\005jobId\030\001 \001(\003\0222\n\004type\030\002 \001(\0162$.com" +
-      ".rolex.grpc.MsgProto.CommandType\"E\n\013Comm" +
-      "andType\022\010\n\004PING\020\000\022\010\n\004PONG\020\001\022\007\n\003ACK\020\002\022\010\n\004" +
-      "NACK\020\003\022\017\n\013JOB_REQUEST\020\004B.\n\031com.rolex.rpc" +
-      ".model.protoB\017MsgProtoWrapperP\001b\006proto3"
+      ".rolex.grpc.MsgProto.CommandType\022;\n\014exec" +
+      "utorType\030\003 \001(\0162%.com.rolex.grpc.MsgProto" +
+      ".ExecutorType\022\014\n\004host\030\004 \001(\t\022\014\n\004port\030\005 \001(" +
+      "\005\"\\\n\013CommandType\022\010\n\004PING\020\000\022\010\n\004PONG\020\001\022\007\n\003" +
+      "ACK\020\002\022\010\n\004NACK\020\003\022\017\n\013JOB_REQUEST\020\004\022\025\n\021EXEC" +
+      "UTOR_REGISTRY\020\005\"&\n\014ExecutorType\022\n\n\006syste" +
+      "m\020\000\022\n\n\006tenant\020\001B.\n\031com.rolex.rpc.model.p" +
+      "rotoB\017MsgProtoWrapperP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -44,7 +48,7 @@ public final class MsgProtoWrapper {
     internal_static_com_rolex_grpc_MsgProto_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_com_rolex_grpc_MsgProto_descriptor,
-        new java.lang.String[] { "JobId", "Type", });
+        new java.lang.String[] { "JobId", "Type", "ExecutorType", "Host", "Port", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

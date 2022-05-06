@@ -1,6 +1,7 @@
 package com.rolex.discovery.routing;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.rolex.discovery.observer.Observer;
 import com.rolex.discovery.observer.RoutingInfoObserver;
 import lombok.Data;
@@ -21,15 +22,18 @@ import java.util.Set;
  */
 @Data
 public class RoutingInfo {
+
+    @JSONField(serialize = false)
     List<RoutingInfoObserver> observers = new ArrayList<>();
 
     public RoutingInfo() {
     }
 
-    public RoutingInfo(Host host, NodeType type, long timestamp, Set<Host> connected, Metrics metrics) {
+    public RoutingInfo(Host host, NodeType type, String executorType, long timestamp, Set<Host> connected, Metrics metrics) {
         this.host = host;
         this.type = type;
         this.timestamp = timestamp;
+        this.executorType = executorType;
         this.connected.addAll(connected);
         this.metrics = metrics;
         this.addObserver(new RoutingInfoObserver());
@@ -40,6 +44,7 @@ public class RoutingInfo {
     long timestamp;
     Set<Host> connected = new HashSet<>();
     Metrics metrics;
+    String executorType;
 
     public static Builder builder() {
         return new Builder();
@@ -51,6 +56,7 @@ public class RoutingInfo {
         Set<Host> connected = new HashSet<>();
         Metrics metrics;
         List<RoutingInfoObserver> observers;
+        String executorType;
 
         public RoutingInfo.Builder host(Host host) {
             this.host = host;
@@ -72,8 +78,13 @@ public class RoutingInfo {
             return this;
         }
 
+        public RoutingInfo.Builder executorType(String executorType) {
+            this.executorType = executorType;
+            return this;
+        }
+
         public RoutingInfo build() {
-            return new RoutingInfo(this.host, this.type, System.currentTimeMillis(), this.connected, this.metrics);
+            return new RoutingInfo(this.host, this.type, this.executorType, System.currentTimeMillis(), this.connected, this.metrics);
         }
     }
 

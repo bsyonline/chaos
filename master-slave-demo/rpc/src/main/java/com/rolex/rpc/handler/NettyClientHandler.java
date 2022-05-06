@@ -69,9 +69,8 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        log.info("master {} offline and reconnect", ctx.channel().remoteAddress().toString());
+        log.info("server {} offline and reconnect", ctx.channel().remoteAddress().toString());
 //        new ConnectionManager(this).reconnect();
-
     }
 
     @Override
