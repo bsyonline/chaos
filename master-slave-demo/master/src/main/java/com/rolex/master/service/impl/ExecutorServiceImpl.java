@@ -24,7 +24,7 @@ public class ExecutorServiceImpl implements ExecutorService {
     static {
         Executor executor = new Executor();
         executor.setExecutorGroupId(1);
-        executor.setTenantCode("tom");
+        executor.setTenantCode("admin");
         map.put(0, executor);
         Executor executor1 = new Executor();
         executor1.setExecutorGroupId(2);
@@ -38,7 +38,7 @@ public class ExecutorServiceImpl implements ExecutorService {
     @Override
     public Executor findByIpPort(String host, int port) {
         int i = new Random().nextInt(3);
-        Executor executor = map.get(i);
+        Executor executor = map.get(2);
         executor.setHost(host);
         executor.setPort(port);
         return executor;

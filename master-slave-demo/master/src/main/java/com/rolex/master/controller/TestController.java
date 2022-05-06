@@ -10,6 +10,7 @@ import com.rolex.master.model.Executor;
 import com.rolex.master.service.DispatchCoordinator;
 import com.rolex.master.service.DispatcherService;
 import com.rolex.master.service.ExecutorService;
+import com.rolex.rpc.model.proto.MsgProto;
 import io.netty.channel.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,8 +97,8 @@ public class TestController {
         for (Host host : routingCache.getConnects().keySet()) {
             Executor executor = executorService.findByIpPort(host.getHost(), host.getPort());
             for (String tenant : TenantManager.getTenants()) {
-                if (Objects.equals(executor.getType(), 1)) {
-                    keySet.add(tenant + "_" + executor.getTenantCode());
+                if (Objects.equals(executor.getTenantCode(), "system")) {
+                    keySet.add(tenant + "_" + MsgProto.ExecutorType.system.getNumber());
                 } else {
                     keySet.add(tenant + "_" + executor.getExecutorGroupId());
                 }

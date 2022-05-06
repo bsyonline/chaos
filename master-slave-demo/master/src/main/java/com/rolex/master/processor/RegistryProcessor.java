@@ -36,9 +36,8 @@ public class RegistryProcessor implements NettyProcessor {
     @Override
     public void process4proto(Channel channel, MsgProto msg) throws InterruptedException {
         log.info("registry executor info: {}", msg);
-        new PickerThreadManager(executorService,dispatchCoordinator).create(msg.getExecutorType(), msg.getHost(), msg.getPort());
+        new PickerThreadManager(executorService, dispatchCoordinator).create(msg.getExecutorType(), msg.getHost(), msg.getPort());
     }
-
 
 
 }

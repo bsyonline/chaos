@@ -45,7 +45,6 @@ public class BroadcastServiceImpl implements BroadcastService {
 
     @Override
     public void broadcast() throws Exception {
-        log.info("{}", routingCache.getLocalRoutingInfo());
         RoutingInfo routingInfo = RoutingInfo.builder()
                 .host(Host.of(NetUtils.getSiteIP(), getPort()))
                 .type(NodeType.valueOf(type))

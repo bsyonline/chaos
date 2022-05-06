@@ -18,7 +18,7 @@ public class TenantManager {
     private static Map<String, List<String>> tenants = Maps.newConcurrentMap();
 
     public static List<String> getTenants() {
-        tenants.put("tenant", Lists.newArrayList("tom", "john"));
+        tenants.put("tenant", Lists.newArrayList("admin"));
         return tenants.get("tenant");
     }
 }

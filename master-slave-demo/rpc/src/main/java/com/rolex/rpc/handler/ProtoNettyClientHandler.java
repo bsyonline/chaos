@@ -6,23 +6,19 @@ package com.rolex.rpc.handler;
 import com.rolex.discovery.routing.NodeState;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.util.Pair;
-import com.rolex.rpc.CommandType;
 import com.rolex.rpc.manager.ConnectionManager;
-import com.rolex.rpc.model.Msg;
-import com.rolex.rpc.model.MsgBody;
 import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.NettyProcessor;
 import com.rolex.rpc.rebalance.RebalanceStrategy;
-import com.rolex.rpc.util.SerializationUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,16 +34,16 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
 
     private final ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
     private final ConcurrentHashMap<MsgProto.CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
-//    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
+    //    private final ConcurrentHashMap<CommandType, Pair<NettyProcessor, ExecutorService>> processors = new ConcurrentHashMap<>();
     private RebalanceStrategy serverSelectorRebalanceStrategy;
     private RoutingCache routingCache;
-    private String executorType;
+    private int executorType;
 
     public void setExecutorType(String executorType) {
-        this.executorType = executorType;
+        this.executorType = Objects.equals("system", executorType) ? 0 : 1;
     }
 
-    public String getExecutorType() {
+    public int getExecutorType() {
         return executorType;
     }
 
@@ -97,13 +93,13 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
     }
 
     private void registry(ChannelHandlerContext ctx) throws InterruptedException {
-        String executorType = getExecutorType();
+        int executorType = getExecutorType();
         SocketChannel socketChannel = (SocketChannel) ctx.channel();
         int localPort = socketChannel.localAddress().getPort();
         String localAddress = socketChannel.localAddress().getAddress().getHostAddress();
         MsgProto registry = MsgProto.newBuilder()
                 .setType(MsgProto.CommandType.EXECUTOR_REGISTRY)
-                .setExecutorType(MsgProto.ExecutorType.valueOf(executorType))
+                .setExecutorType(MsgProto.ExecutorType.forNumber(executorType))
                 .setHost(localAddress)
                 .setPort(localPort)
                 .build();
@@ -175,7 +171,7 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
         ctx.writeAndFlush(msg);
     }
 
-    private void setClientLocalRoutingInfo(ChannelHandlerContext ctx){
+    private void setClientLocalRoutingInfo(ChannelHandlerContext ctx) {
         SocketChannel socketChannel = (SocketChannel) ctx.channel();
         int localPort = socketChannel.localAddress().getPort();
         String localAddress = socketChannel.localAddress().getAddress().getHostAddress();

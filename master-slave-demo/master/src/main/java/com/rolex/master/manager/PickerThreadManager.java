@@ -36,7 +36,7 @@ public class PickerThreadManager {
     RoutingCache routingCache;
     com.rolex.master.service.ExecutorService executorService;
     DispatchCoordinator dispatchCoordinator;
-    private static final int DEFAULT_MAX_EMPTY_PICK_TIMES = 3;
+    private static final int DEFAULT_MAX_EMPTY_PICK_TIMES = 10;
 
     public PickerThreadManager(com.rolex.master.service.ExecutorService executorService, DispatchCoordinator dispatchCoordinator) {
         this.executorService = executorService;
@@ -68,7 +68,7 @@ public class PickerThreadManager {
         if (type == MsgProto.ExecutorType.system) {
             List<String> tenants = TenantManager.getTenants();
             for (String tenant : tenants) {
-                keySet.add(tenant + "_" + executor.getTenantCode());
+                keySet.add(tenant + "_" + MsgProto.ExecutorType.system.getNumber());
             }
         }
         if (type == MsgProto.ExecutorType.tenant) {
@@ -85,7 +85,7 @@ public class PickerThreadManager {
                     PICKER_THREAD_POOL.submit(task);
                     PICKER_THREAD_MAP.put(key, DEFAULT_MAX_EMPTY_PICK_TIMES);
                 } else {
-                    PICKER_THREAD_MAP.put(key, PICKER_THREAD_MAP.get(key) + 1);
+                    PICKER_THREAD_MAP.put(key, PICKER_THREAD_MAP.get(key) + 1 >= DEFAULT_MAX_EMPTY_PICK_TIMES ? DEFAULT_MAX_EMPTY_PICK_TIMES : PICKER_THREAD_MAP.get(key) + 1);
                 }
             }
         }
@@ -103,7 +103,7 @@ public class PickerThreadManager {
         public void run() {
             while (!stop) {
                 try {
-                    log.info("--------------picker-{}-{}-----------", type, PICKER_THREAD_MAP.get(type));
+                    log.info("--------------picker-{}-{}-----------", type, PICKER_THREAD_MAP.get(type) == null ? 0 : PICKER_THREAD_MAP.get(type));
                     String[] arr = type.split("_");
                     String tenantCode = arr[0];
                     long groupId = Objects.equals("system", arr[1]) ? 0 : Long.valueOf(arr[1]);
@@ -114,9 +114,9 @@ public class PickerThreadManager {
                     if (PICKER_THREAD_MAP.get(type) <= 0) {
                         stop = true;
                         PICKER_THREAD_MAP.put(type, 0);
-                        log.info("picker thread exit");
+                        log.info("picker-{} exit", type);
                     }
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
