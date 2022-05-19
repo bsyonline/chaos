@@ -19,6 +19,7 @@ import java.util.Map;
 @Slf4j
 @Component
 public class RoutingCache {
+
     // TODO: 2022/3/7 lru cache
     public Map<NodeType, Map<Host, RoutingInfo>> routingInfoCache = Maps.newConcurrentMap();
     public Map<String, Object> localRoutingInfo = Maps.newConcurrentMap();

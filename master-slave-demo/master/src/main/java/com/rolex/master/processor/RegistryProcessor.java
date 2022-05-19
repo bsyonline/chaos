@@ -1,5 +1,7 @@
 package com.rolex.master.processor;
 
+import com.rolex.discovery.routing.Host;
+import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.master.manager.PickerThreadManager;
 import com.rolex.master.service.DispatchCoordinator;
 import com.rolex.master.service.ExecutorService;
@@ -22,10 +24,12 @@ public class RegistryProcessor implements NettyProcessor {
 
     ExecutorService executorService;
     DispatchCoordinator dispatchCoordinator;
+    RoutingCache routingCache;
 
-    public RegistryProcessor(ExecutorService executorService, DispatchCoordinator dispatchCoordinator) {
+    public RegistryProcessor(ExecutorService executorService, DispatchCoordinator dispatchCoordinator, RoutingCache routingCache) {
         this.executorService = executorService;
         this.dispatchCoordinator = dispatchCoordinator;
+        this.routingCache = routingCache;
     }
 
     @Override
@@ -36,6 +40,8 @@ public class RegistryProcessor implements NettyProcessor {
     @Override
     public void process4proto(Channel channel, MsgProto msg) throws InterruptedException {
         log.info("registry executor info: {}", msg);
+        routingCache.addConnect(Host.of(msg.getHost(), msg.getPort()), channel);
+//        manager.addChannel(Host.of(msg.getHost(), msg.getPort()), channel);
         new PickerThreadManager(executorService, dispatchCoordinator).create(msg.getExecutorType(), msg.getHost(), msg.getPort());
     }
 

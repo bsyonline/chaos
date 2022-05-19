@@ -81,16 +81,15 @@ public class ProtoNettyServerHandler extends SimpleChannelInboundHandler<MsgProt
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         channels.add(ctx.channel());
         log.info("name={}, id={}", ctx.name(), ctx.channel().id().asLongText());
-        manager.addChannel(getClientHost(ctx), ctx.channel());
-        routingCache.addConnect(getClientHost(ctx), ctx.channel());
         log.info("客户端ip地址：{}", getClientHost(ctx));
         log.info("连接的server地址：{}", getServerHost(ctx));
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        manager.removeChannel(getClientHost(ctx));
-        routingCache.removeConnect(getClientHost(ctx));
+        // TODO: 2022/5/16  
+//        manager.removeChannel(getClientHost(ctx));
+//        routingCache.removeConnect(getClientHost(ctx));
         routingCache.clearLocalRoutingInfo();
         System.out.println(ctx.channel().remoteAddress() + "下线");
     }

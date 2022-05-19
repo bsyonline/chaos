@@ -16,6 +16,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -38,6 +40,11 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
     private RebalanceStrategy serverSelectorRebalanceStrategy;
     private RoutingCache routingCache;
     private int executorType;
+    private int httpPort;
+
+    public void setHttpPort(int httpPort) {
+        this.httpPort = httpPort;
+    }
 
     public void setExecutorType(String executorType) {
         this.executorType = Objects.equals("system", executorType) ? 0 : 1;
@@ -101,8 +108,9 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
                 .setType(MsgProto.CommandType.EXECUTOR_REGISTRY)
                 .setExecutorType(MsgProto.ExecutorType.forNumber(executorType))
                 .setHost(localAddress)
-                .setPort(localPort)
+                .setPort(httpPort)
                 .build();
+        log.info("{}", registry);
         ctx.channel().writeAndFlush(registry).sync();
     }
 
@@ -140,7 +148,18 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("=======exceptionCaught={}", cause);
         ctx.close();
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        log.info("=====channelUnregistered");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        log.info("=====channelInactive");
     }
 
     @Override
@@ -177,7 +196,7 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
         String localAddress = socketChannel.localAddress().getAddress().getHostAddress();
 
         routingCache.setLocalRoutingInfo("host", localAddress);
-        routingCache.setLocalRoutingInfo("port", localPort);
+        routingCache.setLocalRoutingInfo("port", httpPort);
         routingCache.setLocalRoutingInfo("state", NodeState.ready);
     }
 

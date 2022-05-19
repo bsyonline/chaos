@@ -18,6 +18,7 @@
         <module>reactor</module>
         <module>rpc</module>
         <module>discovery</module>
+        <module>registry-test</module>
     </modules>
 
     <properties>

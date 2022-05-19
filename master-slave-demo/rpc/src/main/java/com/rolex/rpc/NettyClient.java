@@ -22,6 +22,10 @@ public class NettyClient {
     private final ProtoNettyClientHandler clientHandler = new ProtoNettyClientHandler();
 //    private final NettyClientHandler clientHandler = new NettyClientHandler();
 
+    public void setHttpPort(int httpPort) {
+        this.clientHandler.setHttpPort(httpPort);
+    }
+
     public void setExecutorType(String executorType) {
         this.clientHandler.setExecutorType(executorType);
     }

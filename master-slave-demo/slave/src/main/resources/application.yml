@@ -16,3 +16,9 @@ server:
 node:
   id: 2
   type: client
+dts:
+  should:
+    proxy: true
+  executor:
+    tenant:
+    keep-job-log-hours: 24

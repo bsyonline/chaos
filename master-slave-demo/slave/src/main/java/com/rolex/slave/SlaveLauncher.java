@@ -35,8 +35,10 @@ public class SlaveLauncher implements CommandLineRunner {
     RoutingCache routingCache;
     @Autowired
     RebalanceStrategy rebalanceStrategy;
-    @Value("${dts.executor.tenant:null}")
+    @Value("${dts.executor.tenant:system}")
     String executorType;
+    @Value("${server.port}")
+    int httpPort;
 
     @Override
     public void run(String... args) throws Exception {
@@ -46,6 +48,7 @@ public class SlaveLauncher implements CommandLineRunner {
         nettyClient.setServerSelectorStrategy(rebalanceStrategy);
         nettyClient.setExecutorType(executorType);
         nettyClient.setRoutingCache(routingCache);
+        nettyClient.setHttpPort(httpPort);
         nettyClient.start();
     }
 }

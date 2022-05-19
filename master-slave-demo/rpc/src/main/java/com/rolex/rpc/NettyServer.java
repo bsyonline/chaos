@@ -4,15 +4,14 @@
 package com.rolex.rpc;
 
 import com.rolex.discovery.routing.RoutingCache;
-import com.rolex.rpc.handler.NettyServerHandler;
 import com.rolex.rpc.handler.ProtoNettyServerHandler;
 import com.rolex.rpc.model.Manager;
-import com.rolex.rpc.model.Msg;
 import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.NettyProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,6 +21,8 @@ import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +39,7 @@ public class NettyServer {
     private final ExecutorService defaultExecutor = Executors.newFixedThreadPool(5);
     String host;
     int port;
-//    private final NettyServerHandler serverHandler = new NettyServerHandler(this);
+    //    private final NettyServerHandler serverHandler = new NettyServerHandler(this);
     private final ProtoNettyServerHandler serverHandler = new ProtoNettyServerHandler(this);
     Manager manager;
 
@@ -89,10 +90,18 @@ public class NettyServer {
         try {
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_REUSEADDR, true)
+                    .option(ChannelOption.SO_BACKLOG, 1024)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.TCP_NODELAY, true)
+                    .childOption(ChannelOption.SO_SNDBUF, 65535)
+                    .childOption(ChannelOption.SO_RCVBUF, 65535)
+                    .handler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
+                            pipeline.addLast(new LoggingHandler(LogLevel.DEBUG));
                             pipeline.addLast("idle-state-handler", new IdleStateHandler(0, 0, 16));
 //                            pipeline.addLast("decoder", new MsgDecoder());
 //                            pipeline.addLast("encoder", new MsgEncoder());
@@ -109,9 +118,8 @@ public class NettyServer {
             log.info("server started on port {}", port);
             future.channel().closeFuture();
 //            setServerLocalRoutingInfo();
-        } finally {
-//            bossGroup.shutdownGracefully();
-//            workerGroup.shutdownGracefully();
+        } catch (Exception e) {
+            throw new RuntimeException("netty server start failed", e);
         }
     }
 

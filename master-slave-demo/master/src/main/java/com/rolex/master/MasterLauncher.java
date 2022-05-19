@@ -6,7 +6,6 @@ import com.rolex.master.manager.ExecutorManager;
 import com.rolex.master.processor.RegistryProcessor;
 import com.rolex.master.service.DispatchCoordinator;
 import com.rolex.master.service.ExecutorService;
-import com.rolex.rpc.CommandType;
 import com.rolex.rpc.NettyServer;
 import com.rolex.rpc.model.proto.MsgProto;
 import com.rolex.rpc.processor.impl.PingProcessor;
@@ -29,8 +28,8 @@ import org.springframework.context.annotation.ComponentScan;
  * @since 2022
  */
 @SpringBootApplication
-@ComponentScan(value="com.rolex")
-public class MasterLauncher implements CommandLineRunner{
+@ComponentScan(value = "com.rolex")
+public class MasterLauncher implements CommandLineRunner {
 
     public static void main(String[] args) throws Exception {
         new SpringApplicationBuilder(MasterLauncher.class).web(WebApplicationType.SERVLET).run(args);
@@ -38,8 +37,6 @@ public class MasterLauncher implements CommandLineRunner{
 
     @Value("${tcp.port}")
     int port;
-    @Autowired
-    ExecutorManager executorManager;
     @Autowired
     RoutingCache routingCache;
     @Autowired
@@ -53,8 +50,7 @@ public class MasterLauncher implements CommandLineRunner{
         nettyServer.registerProcessor(MsgProto.CommandType.PING, new PingProcessor());
         nettyServer.registerProcessor(MsgProto.CommandType.ACK, new ReceiveAckProcessor());
         nettyServer.registerProcessor(MsgProto.CommandType.NACK, new ReceiveNackProcessor());
-        nettyServer.registerProcessor(MsgProto.CommandType.EXECUTOR_REGISTRY, new RegistryProcessor(executorService, dispatchCoordinator));
-        nettyServer.executorManager(executorManager);
+        nettyServer.registerProcessor(MsgProto.CommandType.EXECUTOR_REGISTRY, new RegistryProcessor(executorService, dispatchCoordinator, routingCache));
         nettyServer.setRoutingCache(routingCache);
         nettyServer.start();
     }
