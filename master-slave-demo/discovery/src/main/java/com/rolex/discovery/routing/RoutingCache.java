@@ -1,11 +1,14 @@
 package com.rolex.discovery.routing;
 
 import com.google.common.collect.Maps;
+import com.rolex.discovery.observer.RoutingInfoObserver;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,6 +27,16 @@ public class RoutingCache {
     public Map<NodeType, Map<Host, RoutingInfo>> routingInfoCache = Maps.newConcurrentMap();
     public Map<String, Object> localRoutingInfo = Maps.newConcurrentMap();
     public Map<Host, Channel> connectMap = Maps.newConcurrentMap();
+    public Map<String, Double> loadThresholdMap = Maps.newConcurrentMap();
+
+    public Map<String, Double> getLoadThresholdMap() {
+        return loadThresholdMap;
+    }
+
+    public void setLoadThresholdMap(Double cpuLoadThreshold, Double memoryInMBThreshold) {
+        this.loadThresholdMap.put("cpuLoadThreshold", cpuLoadThreshold);
+        this.loadThresholdMap.put("memoryInMBThreshold", memoryInMBThreshold);
+    }
 
     public Map<String, Object> getLocalRoutingInfo() {
         return localRoutingInfo;

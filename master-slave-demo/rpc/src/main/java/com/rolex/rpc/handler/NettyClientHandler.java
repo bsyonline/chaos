@@ -3,8 +3,10 @@
  */
 package com.rolex.rpc.handler;
 
+import com.rolex.discovery.observer.RoutingInfoObserver;
 import com.rolex.discovery.routing.NodeState;
 import com.rolex.discovery.routing.RoutingCache;
+import com.rolex.discovery.routing.RoutingInfo;
 import com.rolex.rpc.CommandType;
 import com.rolex.rpc.manager.ConnectionManager;
 import com.rolex.rpc.model.Msg;
@@ -155,6 +157,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<Msg> {
         routingCache.setLocalRoutingInfo("host", localAddress);
         routingCache.setLocalRoutingInfo("port", localPort);
         routingCache.setLocalRoutingInfo("state", NodeState.ready);
+        routingCache.setLocalRoutingInfo("observer", new RoutingInfoObserver());
     }
 
 }

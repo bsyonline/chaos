@@ -45,10 +45,15 @@ public class NetUtils {
 
     public static void main(String[] args) throws SocketException, UnknownHostException {
         System.out.println(getSiteIP());
+        System.out.println(getHostName());
     }
 
     public static String getSiteIP() throws SocketException, UnknownHostException {
         return getSiteLocalAddress().getHostAddress();
+    }
+
+    public static String getHostName() throws SocketException, UnknownHostException {
+        return getSiteLocalAddress().getHostName();
     }
 
     public static InetAddress getSiteLocalAddress() throws UnknownHostException, SocketException {

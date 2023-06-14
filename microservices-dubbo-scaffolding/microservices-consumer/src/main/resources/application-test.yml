@@ -1,0 +1,15 @@
+server:
+  port: 8080
+dubbo:
+  registry:
+    protocol: zookeeper
+    address: zookeeper://127.0.0.1:2181
+    port: 2181
+  protocol:
+    name: dubbo
+    port: 20890
+  application:
+    name: ${spring.application.name}
+spring:
+  application:
+    name: microservices-demo-consumer

@@ -19,6 +19,9 @@
         <module>rpc</module>
         <module>discovery</module>
         <module>registry-test</module>
+        <module>server</module>
+        <module>client</module>
+        <module>rpc-lib</module>
     </modules>
 
     <properties>

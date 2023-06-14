@@ -3,7 +3,16 @@
  */
 package com.rolex.alphax.concurrent.pool;
 
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author rolex
@@ -11,8 +20,35 @@ import java.util.concurrent.*;
  */
 public class ThreadPoolExample {
 
+    class MyThreadPoolExecutor extends ThreadPoolExecutor{
+
+        public MyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+        }
+
+        public MyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+        }
+
+        public MyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
+        }
+
+        public MyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+        }
+
+        @Override
+        protected void afterExecute(Runnable r, Throwable t) {
+            System.out.println("afterExecute：");
+            System.out.println("当前线程池线程数量为：" + ((ThreadPoolExecutor) this).getPoolSize());
+            System.out.println("当前线程池max线程数量为：" + ((ThreadPoolExecutor) this).getMaximumPoolSize());
+            System.out.println("当前线程池等待线程数量为：" + ((ThreadPoolExecutor) this).getQueue().size());
+        }
+    }
+
     public void test1() throws InterruptedException {
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10,
+        ThreadPoolExecutor executor = new MyThreadPoolExecutor(5, 10,
                 3, TimeUnit.SECONDS, new LinkedBlockingQueue<>(5));
         execute(executor);
     }
@@ -67,32 +103,41 @@ public class ThreadPoolExample {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    System.out.println("========================"+Thread.currentThread().getName() + " 开始执行：" + n);
+                    System.out.println("========================" + Thread.currentThread().getName() + " 开始执行：" + n);
                     try {
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    System.out.println("========================"+Thread.currentThread().getName() + " 执行结束：" + n);
+                    System.out.println("========================" + Thread.currentThread().getName() + " 执行结束：" + n);
                 }
             });
             System.out.println("任务提交：" + n);
             System.out.println("当前线程池线程数量为：" + ((ThreadPoolExecutor) executor).getPoolSize());
+            System.out.println("当前线程池max线程数量为：" + ((ThreadPoolExecutor) executor).getMaximumPoolSize());
             System.out.println("当前线程池等待线程数量为：" + ((ThreadPoolExecutor) executor).getQueue().size());
         }
+        int activeCount = ((ThreadPoolExecutor) executor).getActiveCount();
+
         Thread.sleep(500);
         System.out.println("没有请求等0.5秒----------------");
         System.out.println("所有任务提交完成");
+        System.out.println("activeCount=" + activeCount);
         System.out.println("当前线程池线程数量为：" + ((ThreadPoolExecutor) executor).getPoolSize());
+        System.out.println("当前线程池max线程数量为：" + ((ThreadPoolExecutor) executor).getMaximumPoolSize());
         System.out.println("当前线程池等待线程数量为：" + ((ThreadPoolExecutor) executor).getQueue().size());
         // 等待30秒
         Thread.sleep(30000);
         System.out.println("没有请求等30秒----------------");
+        System.out.println("activeCount=" + activeCount);
         System.out.println("当前线程池线程数量为：" + ((ThreadPoolExecutor) executor).getPoolSize());
+        System.out.println("当前线程池max线程数量为：" + ((ThreadPoolExecutor) executor).getMaximumPoolSize());
         System.out.println("当前线程池等待线程数量为：" + ((ThreadPoolExecutor) executor).getQueue().size());
         Thread.sleep(120000);
         System.out.println("没有请求等120秒----------------");
+        System.out.println("activeCount=" + activeCount);
         System.out.println("当前线程池线程数量为：" + ((ThreadPoolExecutor) executor).getPoolSize());
+        System.out.println("当前线程池max线程数量为：" + ((ThreadPoolExecutor) executor).getMaximumPoolSize());
         System.out.println("当前线程池等待线程数量为：" + ((ThreadPoolExecutor) executor).getQueue().size());
         ((ThreadPoolExecutor) executor).shutdown();
     }

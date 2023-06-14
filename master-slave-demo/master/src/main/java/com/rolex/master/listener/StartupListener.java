@@ -34,6 +34,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+        routingCache.setLoadThresholdMap(1d, 2048d);
         new BroadcastThread(broadcastService).start();
         new RoutingCheckThread(applicationEventPublisher, routingCache).start();
     }

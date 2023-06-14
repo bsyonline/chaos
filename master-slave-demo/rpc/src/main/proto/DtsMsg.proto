@@ -1,0 +1,27 @@
+syntax = "proto3";
+package com.ksyun.kbdp.dts.model.event.protobuf;
+
+option java_outer_classname = "DtsMsgWrapper";
+
+message DtsMsg {
+    int64 jobInstId = 1;
+    enum CommandType {
+        PING = 0;
+        PONG = 1;
+        ACK = 2;
+        NACK = 3;
+        JOB_REQUEST = 4;
+        REGISTRY = 5;
+        REGISTRY_RESPONSE = 6;
+    }
+    CommandType type = 2;
+    enum ExecutorType {
+        system = 0;
+        tenant = 1;
+    }
+    ExecutorType executorType = 3;
+    string host = 4;
+    int32 port = 5;
+    string group = 6;
+    string shardingInfo = 7;
+}

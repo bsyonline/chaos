@@ -96,12 +96,12 @@ public class NettyServer {
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     .childOption(ChannelOption.SO_SNDBUF, 65535)
                     .childOption(ChannelOption.SO_RCVBUF, 65535)
-                    .handler(new LoggingHandler(LogLevel.DEBUG))
+//                    .handler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new LoggingHandler(LogLevel.DEBUG));
+//                            pipeline.addLast(new LoggingHandler(LogLevel.DEBUG));
                             pipeline.addLast("idle-state-handler", new IdleStateHandler(0, 0, 16));
 //                            pipeline.addLast("decoder", new MsgDecoder());
 //                            pipeline.addLast("encoder", new MsgEncoder());

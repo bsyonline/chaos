@@ -46,7 +46,7 @@ public class MasterLauncher implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        NettyServer nettyServer = new NettyServer(NetUtils.getSiteIP(), port);
+        NettyServer nettyServer = new NettyServer(NetUtils.getHostName(), port);
         nettyServer.registerProcessor(MsgProto.CommandType.PING, new PingProcessor());
         nettyServer.registerProcessor(MsgProto.CommandType.ACK, new ReceiveAckProcessor());
         nettyServer.registerProcessor(MsgProto.CommandType.NACK, new ReceiveNackProcessor());

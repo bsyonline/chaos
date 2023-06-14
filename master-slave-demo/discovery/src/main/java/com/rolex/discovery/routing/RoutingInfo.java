@@ -1,8 +1,5 @@
 package com.rolex.discovery.routing;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.rolex.discovery.observer.Observer;
 import com.rolex.discovery.observer.RoutingInfoObserver;
 import lombok.Data;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,20 +20,20 @@ import java.util.Set;
 @Data
 public class RoutingInfo {
 
-    @JSONField(serialize = false)
+    //    @JSONField(serialize = false)
     List<RoutingInfoObserver> observers = new ArrayList<>();
 
     public RoutingInfo() {
     }
 
-    public RoutingInfo(Host host, NodeType type, String executorType, long timestamp, Set<Host> connected, Metrics metrics) {
+    public RoutingInfo(Host host, NodeType type, String executorType, long timestamp, Set<Host> connected, Metrics metrics, List<RoutingInfoObserver> observers) {
         this.host = host;
         this.type = type;
         this.timestamp = timestamp;
         this.executorType = executorType;
         this.connected.addAll(connected);
         this.metrics = metrics;
-        this.addObserver(new RoutingInfoObserver());
+        this.observers.addAll(observers);
     }
 
     Host host;
@@ -55,8 +52,13 @@ public class RoutingInfo {
         NodeType type;
         Set<Host> connected = new HashSet<>();
         Metrics metrics;
-        List<RoutingInfoObserver> observers;
+        List<RoutingInfoObserver> observers = new ArrayList<>();
         String executorType;
+
+        public RoutingInfo.Builder observer(RoutingInfoObserver observer) {
+            this.observers.add(observer);
+            return this;
+        }
 
         public RoutingInfo.Builder host(Host host) {
             this.host = host;
@@ -84,7 +86,7 @@ public class RoutingInfo {
         }
 
         public RoutingInfo build() {
-            return new RoutingInfo(this.host, this.type, this.executorType, System.currentTimeMillis(), this.connected, this.metrics);
+            return new RoutingInfo(this.host, this.type, this.executorType, System.currentTimeMillis(), this.connected, this.metrics, this.observers);
         }
     }
 
@@ -96,7 +98,8 @@ public class RoutingInfo {
         observers.remove(observer);
     }
 
-    public void routingChange(ApplicationEventPublisher applicationEventPublisher,RoutingInfo changed) {
+    public void routingChange(ApplicationEventPublisher applicationEventPublisher, RoutingInfo changed) {
         observers.forEach(o -> o.onChange(applicationEventPublisher, this, changed));
+
     }
 }

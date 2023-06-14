@@ -3,6 +3,7 @@
  */
 package com.rolex.rpc.handler;
 
+import com.rolex.discovery.observer.RoutingInfoObserver;
 import com.rolex.discovery.routing.NodeState;
 import com.rolex.discovery.routing.RoutingCache;
 import com.rolex.discovery.util.Pair;
@@ -89,7 +90,7 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        log.info("server {} offline and reconnect", ctx.channel().remoteAddress().toString());
+        log.info("server {} offline and reconnect", ctx.channel().remoteAddress());
         new ConnectionManager(this).reconnect();
     }
 
@@ -198,6 +199,7 @@ public class ProtoNettyClientHandler extends SimpleChannelInboundHandler<MsgProt
         routingCache.setLocalRoutingInfo("host", localAddress);
         routingCache.setLocalRoutingInfo("port", httpPort);
         routingCache.setLocalRoutingInfo("state", NodeState.ready);
+        routingCache.setLocalRoutingInfo("observer", new RoutingInfoObserver());
     }
 
 }

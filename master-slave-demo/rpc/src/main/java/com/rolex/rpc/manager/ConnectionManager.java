@@ -109,12 +109,12 @@ public class ConnectionManager {
                 .option(ChannelOption.SO_SNDBUF, 65535)
                 .option(ChannelOption.SO_RCVBUF, 65535)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
-                .handler(new LoggingHandler(LogLevel.INFO))
+//                .handler(new LoggingHandler(LogLevel.INFO))
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
+//                        pipeline.addLast(new LoggingHandler(LogLevel.INFO));
                         pipeline.addLast("idle-state-handler", new IdleStateHandler(5, 0, 0));
 //                        pipeline.addLast("decoder", new MsgDecoder());
 //                        pipeline.addLast("encoder", new MsgEncoder());

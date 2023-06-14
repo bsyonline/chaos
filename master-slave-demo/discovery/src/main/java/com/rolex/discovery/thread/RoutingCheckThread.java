@@ -1,5 +1,6 @@
 package com.rolex.discovery.thread;
 
+import com.rolex.discovery.observer.RoutingInfoObserver;
 import com.rolex.discovery.routing.Host;
 import com.rolex.discovery.routing.NodeType;
 import com.rolex.discovery.routing.RoutingCache;
@@ -86,7 +87,10 @@ public class RoutingCheckThread extends Thread {
                         Map<Host, RoutingInfo> serverMap = registry.get(NodeType.server);
                         if (serverMap != null && !serverMap.isEmpty() && serverMap.values() != null && !serverMap.values().isEmpty()) {
                             serverMap.values().forEach(r -> r.routingChange(applicationEventPublisher, routingInfo));
+//                            RoutingInfo current = serverMap.get(Host.of((String) routingCache.getLocalRoutingInfo().get("host"), (int) routingCache.getLocalRoutingInfo().get("port")));
+//                            ((RoutingInfoObserver)routingCache.getLocalRoutingInfo().get("observer")).onChange(applicationEventPublisher, current, routingInfo);
                         }
+                        routingInfo.routingChange(applicationEventPublisher, routingInfo);
                     }
                 }
                 Thread.sleep(1000);
