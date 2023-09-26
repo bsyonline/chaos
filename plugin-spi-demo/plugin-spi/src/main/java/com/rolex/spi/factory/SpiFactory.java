@@ -16,10 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SpiFactory<T extends SpiPlugin> {
     private final Map<String, T> spiMap = new ConcurrentHashMap<>();
-    public SpiFactory(Class<T> spiClass){
+
+    public SpiFactory(Class<T> spiClass) {
         ServiceLoader<T> load = ServiceLoader.load(spiClass);
-        for(T t : load){
-            spiMap.put(t.name(), t);
+        for (T t : load) {
+            spiMap.put(t.name().toLowerCase(), t);
             log.info("plugin [{}] loaded", t.name());
         }
     }

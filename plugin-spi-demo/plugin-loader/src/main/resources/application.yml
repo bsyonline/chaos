@@ -1,0 +1,22 @@
+alert:
+  channels:
+    - dingtalk
+    - wechat
+    - feishu
+
+alerts:
+  channels:
+    - channel: wechat
+      url: http://localhost:3200/
+    - channel: dingtalk
+      url: http://localhost:3200/
+
+
+alarm:
+  channels:
+    wechat:
+      channel: wechat
+      url: http://localhost:3200/
+    dingtalk:
+      channel: dingtalk
+      url: http://localhost:3200/
