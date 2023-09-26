@@ -1,0 +1,9 @@
+syntax = "proto3";
+package com.rolex.model.protobuf;
+
+option java_outer_classname = "MsgWrapper";
+
+message Msg {
+    int64 id = 1;
+    string name = 2;
+}

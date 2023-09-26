@@ -1,0 +1,7 @@
+rootProject.name = 'gradle-jacoco-merge-coverage'
+include 'common'
+include 'model'
+include 'integration'
+include 'integration:docker'
+findProject(':integration:docker')?.name = 'docker'
+

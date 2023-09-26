@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+group = 'com.rolex'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation 'junit:junit:4.13.2'
+    }
+
+}
+
+//task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
+//    description = 'Generates an aggregate report from all subprojects'
+//    dependsOn(subprojects.test)
+//
+//    println("srcDirs=" + subprojects.sourceSets.main.allSource.srcDirs)
+//    println("output=" + subprojects.sourceSets.main.output)
+//    println("executionData=" + subprojects.jacocoTestReport.executionData)
+//
+//    additionalSourceDirs.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+//    sourceDirectories.from = files(subprojects.sourceSets.main.allSource.srcDirs)
+//    classDirectories.from = files(subprojects.sourceSets.main.output)
+//    executionData.from = files(subprojects.jacocoTestReport.executionData)
+//
+//    reports {
+//        html.enabled true
+//    }
+//}
+
+task codeCoverageReport(type: JacocoReport) {
+
+    // Gather execution data from all subprojects
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+
+    // Add all relevant sourcesets from the subprojects
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+
+    reports {
+        xml.enabled true
+        html.enabled true
+        csv.enabled false
+    }
+}
+
+// always run the tests before generating the report
+codeCoverageReport.dependsOn {
+    subprojects*.test
+}
+
+test {
+    finalizedBy codeCoverageReport // report is always generated after tests run
+}
+
+task T1 {
+    println("task1")
+}

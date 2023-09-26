@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+    id "com.google.protobuf" version "0.8.8"
+}
+
+group = 'com.rolex'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.protobuf:protobuf-java:3.5.1'
+    implementation 'com.googlecode.protobuf-java-format:protobuf-java-format:1.4'
+    compileOnly 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.5.1'
+    }
+    generatedFilesBaseDir = "$projectDir/src/"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "src/main/java"
+        }
+        resources {
+            srcDir "src/main/resources"
+        }
+    }
+}
+
